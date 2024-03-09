@@ -98,4 +98,14 @@ export class AuthService {
 
     return { user: user.toObject(), jwt };
   }
+
+  async getUserById(id: string) {
+    const user = await this.userModel.findById(id);
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    return user.toObject();
+  }
 }
