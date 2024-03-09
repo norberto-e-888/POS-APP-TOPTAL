@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@pos-app/outbox": ["libs/outbox/src/index.ts"]
+      "@pos-app/outbox": ["libs/outbox/src/index.ts"],
+      "@pos-app/validators": ["libs/validators/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
