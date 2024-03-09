@@ -55,6 +55,7 @@
     "jsonwebtoken": "^9.0.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
+    "stripe": "^14.20.0",
     "tslib": "^2.3.0"
   }
 }
