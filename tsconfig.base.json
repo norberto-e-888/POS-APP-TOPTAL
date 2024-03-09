@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@pos-app/auth": ["libs/auth/src/index.ts"],
       "@pos-app/outbox": ["libs/outbox/src/index.ts"],
       "@pos-app/validators": ["libs/validators/src/index.ts"]
     }
