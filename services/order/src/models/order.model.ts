@@ -1,8 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types, HydratedDocument } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 import { BaseModel } from '@pos-app/models';
 import { schemaOptions } from '@pos-app/utils';
 import {
+  OrderItem,
+  OrderItemSchema,
   OrderShippingAddress,
   OrderShippingAddressSchema,
 } from './order.model.sub';
@@ -39,10 +41,10 @@ export class Order extends BaseModel {
 
   @Prop({
     required: true,
-    type: [Types.ObjectId],
+    type: [OrderItemSchema],
     minlength: 1,
   })
-  products: Types.ObjectId[];
+  items: OrderItem[];
 
   @Prop({
     required: true,
@@ -53,22 +55,13 @@ export class Order extends BaseModel {
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
 
-OrderSchema.pre('save', async function (this: HydratedDocument<Order>) {
-  const productsCollection = this.db.collection<{
-    price: number;
-    amount: number;
-  }>('products');
-
-  const products = await productsCollection
-    .find({
-      _id: { $in: this.products },
-    })
-    .toArray();
-
-  this.total = products.reduce(
-    (total, product) => total + product.amount * product.price,
-    0
-  );
-});
+OrderSchema.pre('save', calculateTotal);
 
 export type OrderDocument = HydratedDocument<Order>;
+
+async function calculateTotal(this: HydratedDocument<Order>) {
+  this.total = this.items.reduce(
+    (total, { price, quantity }) => total + quantity * price,
+    0
+  );
+}
