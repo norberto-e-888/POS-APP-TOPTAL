@@ -4,8 +4,7 @@ import {
   CallbackWithoutResultAndOptionalError,
   Types,
 } from 'mongoose';
-import { BaseModel } from '@pos-app/models';
-import { schemaOptions } from '@pos-app/utils';
+import { schemaOptions, BaseModel } from '@pos-app/utils';
 import {
   OrderItem,
   OrderItemSchema,

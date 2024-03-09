@@ -6,8 +6,33 @@ import {
   Types,
 } from 'mongoose';
 import { Coordinates, Pagination } from '@pos-app/validators';
-import { BaseModel, Point } from '@pos-app/models';
 import { TransformFnParams } from 'class-transformer';
+import { Prop, Schema } from '@nestjs/mongoose';
+import { Schema as _Schema } from 'mongoose';
+
+@Schema({
+  _id: false,
+})
+export class Point {
+  @Prop({
+    enum: ['Point'],
+    default: 'Point',
+  })
+  type!: 'Point';
+
+  @Prop({
+    type: [_Schema.Types.Decimal128, _Schema.Types.Decimal128],
+    transform: (v: [Types.Decimal128, Types.Decimal128]) =>
+      v.map((decimal) => parseFloat(decimal.toString())),
+  })
+  coordinates!: [number, number];
+}
+
+export class BaseModel {
+  id!: string;
+  createdAt!: Date;
+  updatedAt!: Date;
+}
 
 const SKIP_FROM_REF_INTEGRITY_CHECK = new Set([
   '_id',

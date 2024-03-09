@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { BaseModel } from '@pos-app/models';
-import { schemaOptions } from '@pos-app/utils';
+import { schemaOptions, BaseModel } from '@pos-app/utils';
 import { ProductStock, ProductStockSchema } from './product.model.sub';
 
 export const PRODUCT_MODEL_COLLECTION = 'products';

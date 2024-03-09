@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { JWT, BCRYPT } from '../lib';
 import { SignInBody, SignUpBody } from '../validators';
 import { InjectModel } from '@nestjs/mongoose';
+import { HydratedDocument } from 'mongoose';
 import { Model } from 'mongoose';
 import { USER_MODEL_COLLECTION, User, UserRole } from '../models';
 import { OutboxService } from '@pos-app/outbox';
@@ -102,7 +103,7 @@ export class AuthService {
     return user.toObject();
   }
 
-  private signJwt(user: User) {
+  private signJwt(user: HydratedDocument<User>) {
     const jwtSecret = this.configService.get<Config['jwt']>('jwt').secret;
     const payload: JWTPayload = {
       id: user.id,

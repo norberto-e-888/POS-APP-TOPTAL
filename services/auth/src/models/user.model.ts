@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { BaseModel } from '@pos-app/models';
-import { schemaOptions, validateEnumArray } from '@pos-app/utils';
+import { schemaOptions, validateEnumArray, BaseModel } from '@pos-app/utils';
 import { HydratedDocument } from 'mongoose';
 
 export const USER_MODEL_COLLECTION = 'users';
