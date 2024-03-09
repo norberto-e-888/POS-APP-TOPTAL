@@ -21,22 +21,18 @@ export class OrderService {
 
     return this.outboxService.publish(
       async (session) => {
-        const [order] = await this.orderModel.create(
-          [
-            {
-              customerId: userId,
-              shippingAddress: dto.shippingAddress,
-              items,
-            },
-          ],
-          {
-            session,
-          }
-        );
-
         await Promise.all(
           items.map(async (item) => {
             const { productId, quantity } = item;
+
+            const product = await this.productModel.findById(productId);
+
+            if (!product) {
+              throw new HttpException(
+                `Product with id ${productId} not found.`,
+                HttpStatus.NOT_FOUND
+              );
+            }
 
             await this.productModel.updateOne(
               { _id: productId },
@@ -75,6 +71,19 @@ export class OrderService {
             HttpStatus.BAD_REQUEST
           );
         }
+
+        const [order] = await this.orderModel.create(
+          [
+            {
+              customerId: userId,
+              shippingAddress: dto.shippingAddress,
+              items,
+            },
+          ],
+          {
+            session,
+          }
+        );
 
         return order.toObject();
       },

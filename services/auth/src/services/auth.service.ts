@@ -54,12 +54,13 @@ export class AuthService {
           { session }
         );
 
+        const userObj = user.toObject();
         const jwtSecret = this.configService.get<Config['jwt']>('jwt').secret;
-        const jwt = this.jwt.sign({ id: user.id }, jwtSecret, {
+        const jwt = this.jwt.sign({ id: userObj.id }, jwtSecret, {
           expiresIn: 60 * 60 * 24,
         });
 
-        return { user: user, jwt };
+        return { user: userObj, jwt };
       },
       {
         exchange: Exchange.SignUp,

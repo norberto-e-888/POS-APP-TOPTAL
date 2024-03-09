@@ -1,5 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import {
+  HydratedDocument,
+  CallbackWithoutResultAndOptionalError,
+} from 'mongoose';
 import { BaseModel } from '@pos-app/models';
 import { schemaOptions } from '@pos-app/utils';
 import {
@@ -48,7 +51,6 @@ export class Order extends BaseModel {
   items: OrderItem[];
 
   @Prop({
-    required: true,
     min: 0.01,
   })
   total: number;
@@ -60,9 +62,14 @@ OrderSchema.pre('save', calculateTotal);
 
 export type OrderDocument = HydratedDocument<Order>;
 
-async function calculateTotal(this: HydratedDocument<Order>) {
+async function calculateTotal(
+  this: HydratedDocument<Order>,
+  next: CallbackWithoutResultAndOptionalError
+) {
   this.total = this.items.reduce(
     (total, { price, quantity }) => total + quantity * price,
     0
   );
+
+  next();
 }

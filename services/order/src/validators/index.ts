@@ -1,42 +1,16 @@
 import {
+  ArrayMinSize,
   IsArray,
-  IsDecimal,
-  IsEnum,
   IsInt,
   IsMongoId,
-  IsNumberString,
+  IsNumber,
   IsObject,
   IsString,
   Min,
   ValidateNested,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
-import { OrderStatus } from '../models';
-import { toInt, toTwoDecimalFloat, trim } from '@pos-app/utils';
-
-export class CreateOrderBody {
-  @IsObject()
-  @ValidateNested()
-  @Type(() => ShippingAddress)
-  shippingAddress: ShippingAddress;
-
-  @IsEnum(OrderStatus)
-  @Transform(trim)
-  @IsString()
-  status: OrderStatus;
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => OrderItem)
-  items: OrderItem[];
-
-  @Min(0.01)
-  @IsDecimal()
-  @Transform(toTwoDecimalFloat)
-  @IsNumberString()
-  @IsString()
-  total: number;
-}
+import { toInt, trim } from '@pos-app/utils';
 
 class ShippingAddress {
   @Transform(trim)
@@ -69,14 +43,19 @@ class OrderItem {
   @Min(1)
   @IsInt()
   @Transform(toInt)
-  @IsNumberString()
-  @IsString()
+  @IsNumber()
   quantity: number;
+}
 
-  @Min(0.01)
-  @IsDecimal()
-  @Transform(toTwoDecimalFloat)
-  @IsNumberString()
-  @IsString()
-  price: number;
+export class CreateOrderBody {
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ShippingAddress)
+  shippingAddress: ShippingAddress;
+
+  @ArrayMinSize(1)
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => OrderItem)
+  items: OrderItem[];
 }

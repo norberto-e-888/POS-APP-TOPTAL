@@ -6,6 +6,7 @@ import { ModelsModule } from '../models';
 import { AmqpModule } from './amqp';
 import { OutboxPublisherModule } from '@pos-app/outbox';
 import { OrderService } from '../services';
+import { OrderController } from '../controllers/order.controller';
 
 @Module({
   imports: [
@@ -28,6 +29,6 @@ import { OrderService } from '../services';
     OutboxPublisherModule,
   ],
   providers: [OrderService],
-  controllers: [],
+  controllers: [OrderController],
 })
 export class AppModule {}
