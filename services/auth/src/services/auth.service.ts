@@ -48,7 +48,7 @@ export class AuthService {
               lastName: dto.lastName,
               email: dto.email,
               password: hashedPassword,
-              roles: [UserRole.USER],
+              roles: [UserRole.CUSTOMER],
             },
           ],
           { session }
@@ -56,15 +56,19 @@ export class AuthService {
 
         const userObj = user.toObject();
         const jwtSecret = this.configService.get<Config['jwt']>('jwt').secret;
-        const jwt = this.jwt.sign({ id: userObj.id }, jwtSecret, {
-          expiresIn: 60 * 60 * 24,
-        });
+        const jwt = this.jwt.sign(
+          { id: userObj.id, roles: [UserRole.CUSTOMER] },
+          jwtSecret,
+          {
+            expiresIn: 60 * 60 * 24,
+          }
+        );
 
         return { user: userObj, jwt };
       },
       {
         exchange: Exchange.SignUp,
-        routingKey: UserRole.USER,
+        routingKey: UserRole.CUSTOMER,
       },
       {
         aggregate: {
@@ -93,7 +97,7 @@ export class AuthService {
     }
 
     const jwtSecret = this.configService.get<Config['jwt']>('jwt').secret;
-    const jwt = this.jwt.sign({ id: user.id }, jwtSecret, {
+    const jwt = this.jwt.sign({ id: user.id, roles: user.roles }, jwtSecret, {
       expiresIn: 60 * 60 * 24,
     });
 

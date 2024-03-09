@@ -7,7 +7,7 @@ export const USER_MODEL_COLLECTION = 'users';
 
 export enum UserRole {
   ADMIN = 'admin',
-  USER = 'user',
+  CUSTOMER = 'customer',
 }
 
 @Schema(
@@ -44,7 +44,7 @@ export class User extends BaseModel {
   @Prop({
     type: [String],
     validate: validateEnumArray(UserRole, 'Invalid roles.'),
-    default: UserRole.USER,
+    default: UserRole.CUSTOMER,
   })
   roles: UserRole[];
 }
