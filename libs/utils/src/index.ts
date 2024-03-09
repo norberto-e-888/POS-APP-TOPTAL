@@ -83,12 +83,14 @@ async function checkDocExists(
   }
 }
 
-export const schemaOptions = (
+export const schemaOptions = <M = Record<string, unknown>>(
   collection: string,
   options: Omit<
     SchemaOptions,
     'collection' | 'id' | 'timestamps' | 'toObject'
-  > = {}
+  > & {
+    omitFromTransform?: (keyof M)[];
+  } = {}
 ): SchemaOptions => ({
   ...options,
   collection,
@@ -101,6 +103,13 @@ export const schemaOptions = (
       ...ret,
       _id: undefined,
       __v: undefined,
+      ...(options.omitFromTransform || []).reduce(
+        (prev, curr) => ({
+          ...prev,
+          [curr]: undefined,
+        }),
+        {}
+      ),
     }),
   },
 });

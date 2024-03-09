@@ -10,7 +10,11 @@ export enum UserRole {
   USER = 'user',
 }
 
-@Schema(schemaOptions(USER_MODEL_COLLECTION))
+@Schema(
+  schemaOptions<User>(USER_MODEL_COLLECTION, {
+    omitFromTransform: ['password'],
+  })
+)
 export class User extends BaseModel {
   @Prop({
     type: String,

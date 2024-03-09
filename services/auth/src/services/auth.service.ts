@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { JWT, BCRYPT } from '../lib';
-import { SignUpBody } from '../validators';
+import { SignInBody, SignUpBody } from '../validators';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { USER_MODEL_COLLECTION, User, UserRole } from '../models';
@@ -73,5 +73,29 @@ export class AuthService {
         transformPayload: (result) => result.user,
       }
     );
+  }
+
+  async signIn(dto: SignInBody) {
+    const user = await this.userModel.findOne({ email: dto.email });
+
+    if (!user) {
+      throw new HttpException('Invalid credentials', HttpStatus.BAD_REQUEST);
+    }
+
+    const isPasswordValid = await this.bcrypt.compare(
+      dto.password,
+      user.password
+    );
+
+    if (!isPasswordValid) {
+      throw new HttpException('Invalid credentials', HttpStatus.BAD_REQUEST);
+    }
+
+    const jwtSecret = this.configService.get<Config['jwt']>('jwt').secret;
+    const jwt = this.jwt.sign({ id: user.id }, jwtSecret, {
+      expiresIn: 60 * 60 * 24,
+    });
+
+    return { user: user.toObject(), jwt };
   }
 }
