@@ -8,6 +8,7 @@ import { OutboxService } from '@pos-app/outbox';
 import { Exchange } from '../app/amqp';
 import { Config } from '../config';
 import { ConfigService } from '@nestjs/config';
+import { JWTPayload } from '@pos-app/auth';
 
 @Injectable()
 export class AuthService {
@@ -55,16 +56,8 @@ export class AuthService {
         );
 
         const userObj = user.toObject();
-        const jwtSecret = this.configService.get<Config['jwt']>('jwt').secret;
-        const jwt = this.jwt.sign(
-          { id: userObj.id, roles: [UserRole.CUSTOMER] },
-          jwtSecret,
-          {
-            expiresIn: 60 * 60 * 24,
-          }
-        );
 
-        return { user: userObj, jwt };
+        return { user: userObj, jwt: this.signJwt(user) };
       },
       {
         exchange: Exchange.SignUp,
@@ -96,12 +89,7 @@ export class AuthService {
       throw new HttpException('Invalid credentials', HttpStatus.BAD_REQUEST);
     }
 
-    const jwtSecret = this.configService.get<Config['jwt']>('jwt').secret;
-    const jwt = this.jwt.sign({ id: user.id, roles: user.roles }, jwtSecret, {
-      expiresIn: 60 * 60 * 24,
-    });
-
-    return { user: user.toObject(), jwt };
+    return { user: user.toObject(), jwt: this.signJwt(user) };
   }
 
   async getUserById(id: string) {
@@ -112,5 +100,17 @@ export class AuthService {
     }
 
     return user.toObject();
+  }
+
+  private signJwt(user: User) {
+    const jwtSecret = this.configService.get<Config['jwt']>('jwt').secret;
+    const payload: JWTPayload = {
+      id: user.id,
+      roles: user.roles,
+    };
+
+    return this.jwt.sign(payload, jwtSecret, {
+      expiresIn: 60 * 60 * 24,
+    });
   }
 }
