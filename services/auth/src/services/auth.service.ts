@@ -4,7 +4,7 @@ import { SignInBody, SignUpBody } from '../validators';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Model } from 'mongoose';
-import { USER_MODEL_COLLECTION, User, UserRole } from '../models';
+import { USER_MODEL_COLLECTION, User, UserRole } from '@pos-app/models';
 import { OutboxService } from '@pos-app/outbox';
 import { Exchange } from '../app/amqp';
 import { Config } from '../config';

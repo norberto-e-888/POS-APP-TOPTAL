@@ -14,4 +14,4 @@ import { User, UserSchema } from './user.model';
   ],
   exports: [MongooseModule],
 })
-export class ModelsModule {}
+export class AuthModelsModule {}

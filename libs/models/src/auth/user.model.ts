@@ -19,33 +19,33 @@ export class User extends BaseModel {
     type: String,
     required: true,
   })
-  firstName: string;
+  firstName!: string;
 
   @Prop({
     type: String,
     required: true,
   })
-  lastName: string;
+  lastName!: string;
 
   @Prop({
     type: String,
     required: true,
     unique: true,
   })
-  email: string;
+  email!: string;
 
   @Prop({
     type: String,
     required: true,
   })
-  password: string;
+  password!: string;
 
   @Prop({
     type: [String],
     validate: validateEnumArray(UserRole, 'Invalid roles.'),
     default: UserRole.CUSTOMER,
   })
-  roles: UserRole[];
+  roles!: UserRole[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
