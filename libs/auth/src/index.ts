@@ -28,7 +28,7 @@ export class Authenticated implements CanActivate {
 }
 
 export const JWTPayload = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext) => {
+  (_: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest<Request>();
     const jwtCookie = request.cookies['jwt'];
 
