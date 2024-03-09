@@ -69,7 +69,7 @@ export class AuthService {
       {
         aggregate: {
           collection: USER_MODEL_COLLECTION,
-          entityIdKey: '_id',
+          entityIdKey: 'id',
         },
         transformPayload: (result) => result.user,
       }
