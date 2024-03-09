@@ -7,6 +7,7 @@ import {
 } from 'mongoose';
 import { Coordinates, Pagination } from '@pos-app/validators';
 import { Point } from '@pos-app/models';
+import { TransformFnParams } from 'class-transformer';
 
 const SKIP_FROM_REF_INTEGRITY_CHECK = new Set([
   '_id',
@@ -126,3 +127,5 @@ export const validateEnumArray = (
     v.every((s) => Object.values(enumType).includes(s)),
   message: errorMessage,
 });
+
+export const trim = ({ value }: TransformFnParams) => value.trim();

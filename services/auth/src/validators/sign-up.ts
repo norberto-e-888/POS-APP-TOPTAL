@@ -1,26 +1,27 @@
 import { IsEmail, IsString, MinLength } from 'class-validator';
-import { Trim } from 'class-sanitizer';
+import { Transform } from 'class-transformer';
+import { trim } from '@pos-app/utils';
 
 export class SignUpBody {
-  @Trim()
+  @Transform(trim)
   @IsString()
   firstName: string;
 
-  @Trim()
+  @Transform(trim)
   @IsString()
   lastName: string;
 
-  @Trim()
+  @Transform(trim)
   @IsEmail()
   @IsString()
   email: string;
 
-  @Trim()
+  @Transform(trim)
   @MinLength(8)
   @IsString()
   password: string;
 
-  @Trim()
+  @Transform(trim)
   @MinLength(8)
   @IsString()
   confirmPassword: string;

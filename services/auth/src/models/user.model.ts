@@ -38,7 +38,7 @@ export class User extends BaseModel {
   password: string;
 
   @Prop({
-    type: String,
+    type: [String],
     validate: validateEnumArray(UserRole, 'Invalid roles.'),
     default: UserRole.USER,
   })

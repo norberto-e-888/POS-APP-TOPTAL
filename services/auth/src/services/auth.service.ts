@@ -39,23 +39,27 @@ export class AuthService {
 
     const hashedPassword = await this.bcrypt.hash(dto.password, 10);
 
-    const user = new this.userModel({
-      firstName: dto.firstName,
-      lastName: dto.lastName,
-      email: dto.email,
-      password: hashedPassword,
-      roles: [UserRole.USER],
-    });
-
     return this.outboxService.publish(
       async (session) => {
-        const savedUser = (await user.save({ session })).toObject();
+        const [user] = await this.userModel.create(
+          [
+            {
+              firstName: dto.firstName,
+              lastName: dto.lastName,
+              email: dto.email,
+              password: hashedPassword,
+              roles: [UserRole.USER],
+            },
+          ],
+          { session }
+        );
+
         const jwtSecret = this.configService.get<Config['jwt']>('jwt').secret;
-        const jwt = this.jwt.sign({ id: savedUser.id }, jwtSecret, {
+        const jwt = this.jwt.sign({ id: user.id }, jwtSecret, {
           expiresIn: 60 * 60 * 24,
         });
 
-        return { user: savedUser, jwt };
+        return { user: user, jwt };
       },
       {
         exchange: Exchange.SignUp,
@@ -64,7 +68,7 @@ export class AuthService {
       {
         aggregate: {
           collection: USER_MODEL_COLLECTION,
-          entityId: user.id,
+          entityIdKey: '_id',
         },
         transformPayload: (result) => result.user,
       }

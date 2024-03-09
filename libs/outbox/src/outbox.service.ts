@@ -2,7 +2,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Outbox, OutboxAggregate, OutboxDocument } from './outbox.schema';
-import { Model, ClientSession, Schema } from 'mongoose';
+import { Model, ClientSession, Schema, Types } from 'mongoose';
 import { inspect } from 'util';
 import { PublishOutboxCommand } from './publish.command';
 
@@ -25,7 +25,7 @@ export class OutboxService {
       transformPayload?: (result: T) => unknown;
       aggregate?: {
         collection: string;
-        entityId: string;
+        entityIdKey: string;
       };
     } = {}
   ) {
@@ -59,37 +59,38 @@ export class OutboxService {
               );
             }
 
-            const document = (await collection.findOne({
-              _id: new Schema.Types.ObjectId(options.aggregate.entityId),
-            })) as unknown as {
+            const entityId = JSON.parse(payload)[options.aggregate.entityIdKey];
+
+            const document = (await collection.findOne({})) as unknown as {
               _id: Schema.Types.ObjectId;
               _version?: number;
             };
 
             if (!document) {
-              throw new Error(
-                `Non-existing entity in collection ${options.aggregate.collection} with Id ${options.aggregate.entityId}.`
+              aggregate = {
+                entityId,
+                version: 1,
+              };
+            } else {
+              await collection.findOneAndUpdate(
+                {
+                  _id: new Types.ObjectId(entityId),
+                },
+                typeof document._version === 'number'
+                  ? {
+                      $inc: { _version: 1 },
+                    }
+                  : { _version: 1 },
+                {
+                  session,
+                }
               );
+
+              aggregate = {
+                entityId,
+                version: document._version ? document._version + 1 : 1,
+              };
             }
-
-            await collection.updateOne(
-              {
-                _id: new Schema.Types.ObjectId(options.aggregate.entityId),
-              },
-              typeof document._version === 'number'
-                ? {
-                    $inc: { _version: 1 },
-                  }
-                : { _version: 1 },
-              {
-                session,
-              }
-            );
-
-            aggregate = {
-              entityId: options.aggregate.entityId,
-              version: document._version ? document._version + 1 : 1,
-            };
           }
 
           const [outbox] = await this.outbox.create(
