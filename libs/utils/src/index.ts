@@ -104,9 +104,9 @@ export const schemaOptions = <M = Record<string, unknown>>(
       _id: undefined,
       __v: undefined,
       ...(options.omitFromTransform || []).reduce(
-        (prev, curr) => ({
-          ...prev,
-          [curr]: undefined,
+        (toOmit, keyToOmit) => ({
+          ...toOmit,
+          [keyToOmit]: undefined,
         }),
         {}
       ),
