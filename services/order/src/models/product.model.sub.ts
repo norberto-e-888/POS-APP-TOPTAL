@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ensureRefIntegrity } from '@pos-app/utils';
 
 @Schema({ _id: false })
 export class ProductStock {
@@ -17,5 +16,3 @@ export class ProductStock {
 }
 
 export const ProductStockSchema = SchemaFactory.createForClass(ProductStock);
-
-ProductStockSchema.pre('save', ensureRefIntegrity);
