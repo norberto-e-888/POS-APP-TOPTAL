@@ -20,33 +20,33 @@ export class Product extends BaseModel {
     unique: true,
     minlength: 2,
   })
-  name: string;
+  name!: string;
 
   @Prop({
     required: true,
     minlength: 10,
   })
-  description: string;
+  description!: string;
 
   @Prop({
     required: true,
     min: 0.01,
   })
-  price: number;
+  price!: number;
 
   @Prop({
     required: true,
     unique: true,
     minlength: 2,
   })
-  sku: string;
+  sku!: string;
 
   @Prop({
     required: true,
     enum: Object.values(ProductCategory),
     type: String,
   })
-  category: ProductCategory;
+  category!: ProductCategory;
 
   @Prop({
     required: true,
@@ -56,7 +56,7 @@ export class Product extends BaseModel {
       reservedQuantity: 0,
     }),
   })
-  stock: ProductStock;
+  stock!: ProductStock;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

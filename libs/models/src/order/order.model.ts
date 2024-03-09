@@ -11,7 +11,6 @@ import {
   OrderShippingAddress,
   OrderShippingAddressSchema,
 } from './order.model.sub';
-import { CreateOrderBody, OrderItemValidator } from '../validators';
 
 export const ORDER_MODEL_COLLECTION = 'orders';
 
@@ -30,13 +29,13 @@ export class Order extends BaseModel {
   @Prop({
     required: true,
   })
-  customerId: string;
+  customerId!: string;
 
   @Prop({
     required: true,
     type: OrderShippingAddressSchema,
   })
-  shippingAddress: OrderShippingAddress;
+  shippingAddress!: OrderShippingAddress;
 
   @Prop({
     required: true,
@@ -44,22 +43,22 @@ export class Order extends BaseModel {
     type: String,
     default: OrderStatus.PLACED,
   })
-  status: OrderStatus;
+  status!: OrderStatus;
 
   @Prop({
     required: true,
     type: [OrderItemSchema],
     minlength: 1,
   })
-  items: OrderItem[];
+  items!: OrderItem[];
 
   @Prop({
     min: 0.01,
   })
-  total: number;
+  total!: number;
 
   @Prop()
-  hash: string;
+  hash!: string;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
@@ -83,13 +82,10 @@ async function setTotal(
   next();
 }
 
-export async function getOrderhHash(
-  order: Order | CreateOrderBody,
-  userId: string
-) {
+export async function getOrderhHash(order: Order, userId: string) {
   const shippingAddressHash = `${order.shippingAddress.country}.${order.shippingAddress.state}.${order.shippingAddress.city}.${order.shippingAddress.street}.${order.shippingAddress.zip}`;
   const itemsHash = order.items
-    .map((item: OrderItem | OrderItemValidator) => {
+    .map((item: OrderItem) => {
       if (item.productId instanceof Types.ObjectId) {
         return item;
       }

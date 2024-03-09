@@ -6,13 +6,13 @@ export class ProductStock {
     required: true,
     min: 0,
   })
-  availableQuantity: number;
+  availableQuantity!: number;
 
   @Prop({
     required: true,
     min: 0,
   })
-  reservedQuantity: number;
+  reservedQuantity!: number;
 }
 
 export const ProductStockSchema = SchemaFactory.createForClass(ProductStock);

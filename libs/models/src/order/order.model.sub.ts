@@ -6,34 +6,34 @@ import {
   HydratedDocument,
   CallbackWithoutResultAndOptionalError,
 } from 'mongoose';
-import { PRODUCT_MODEL_COLLECTION } from './product.model';
+import { PRODUCT_MODEL_COLLECTION, Product } from './product.model';
 
 @Schema({ _id: false })
 export class OrderShippingAddress {
   @Prop({
     required: true,
   })
-  street: string;
+  street!: string;
 
   @Prop({
     required: true,
   })
-  city: string;
+  city!: string;
 
   @Prop({
     required: true,
   })
-  state: string;
+  state!: string;
 
   @Prop({
     required: true,
   })
-  zip: string;
+  zip!: string;
 
   @Prop({
     required: true,
   })
-  country: string;
+  country!: string;
 }
 
 export const OrderShippingAddressSchema =
@@ -46,18 +46,18 @@ export class OrderItem {
     type: _Schema.Types.ObjectId,
     ref: PRODUCT_MODEL_COLLECTION,
   })
-  productId: Types.ObjectId;
+  productId!: Types.ObjectId;
 
   @Prop({
     required: true,
     min: 1,
   })
-  quantity: number;
+  quantity!: number;
 
   @Prop({
     min: 0.01,
   })
-  price: number;
+  price!: number;
 }
 
 export const OrderItemSchema = SchemaFactory.createForClass(OrderItem);
@@ -69,11 +69,11 @@ async function setCurrentProductPrice(
   this: HydratedDocument<OrderItem>,
   next: CallbackWithoutResultAndOptionalError
 ) {
-  const productCollection = this.$parent().db.collection(
+  const productCollection = this.$parent()?.db.collection<Product>(
     PRODUCT_MODEL_COLLECTION
   );
 
-  const product = await productCollection.findOne({ _id: this.productId });
+  const product = await productCollection?.findOne({ _id: this.productId });
 
   if (!product) {
     throw new Error('Product not found.');

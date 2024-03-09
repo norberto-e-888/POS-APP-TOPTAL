@@ -1,10 +1,11 @@
+import { OutboxPublisherModule } from '@pos-app/outbox';
+import { OrderModelsModule } from '@pos-app/models';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Config, config } from '../config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ModelsModule } from '../models';
+
+import { Config, config } from '../config';
 import { AmqpModule } from './amqp';
-import { OutboxPublisherModule } from '@pos-app/outbox';
 import { OrderService } from '../services';
 import { OrderController } from '../controllers/order.controller';
 
@@ -24,7 +25,7 @@ import { OrderController } from '../controllers/order.controller';
         };
       },
     }),
-    ModelsModule,
+    OrderModelsModule,
     AmqpModule,
     OutboxPublisherModule,
   ],

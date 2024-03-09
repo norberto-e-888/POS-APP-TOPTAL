@@ -1,9 +1,10 @@
+import { Order, Product, getOrderhHash } from '@pos-app/models';
+import { OutboxService } from '@pos-app/outbox';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Order, Product, getOrderhHash } from '../models';
+
 import { CreateOrderBody } from '../validators';
-import { OutboxService } from '@pos-app/outbox';
 import { Exchange } from '../app/amqp';
 
 @Injectable()
@@ -20,7 +21,7 @@ export class OrderService {
     const { items } = dto;
 
     if (!dto.overrideIdempotency) {
-      const orderHash = await getOrderhHash(dto, userId);
+      const orderHash = await getOrderhHash(dto as unknown as Order, userId);
       const existingOrder = await this.orderModel.findOne({
         hash: orderHash,
         createdAt: {

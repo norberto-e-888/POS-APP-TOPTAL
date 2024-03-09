@@ -18,4 +18,4 @@ import { Product, ProductSchema } from './product.model';
   ],
   exports: [MongooseModule],
 })
-export class ModelsModule {}
+export class OrderModelsModule {}
