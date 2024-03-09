@@ -1,0 +1,24 @@
+{
+  "name": "services-outbox-cron",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "services/outbox-cron/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "services-outbox-cron:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "services-outbox-cron:build:development"
+        },
+        "production": {
+          "buildTarget": "services-outbox-cron:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}
