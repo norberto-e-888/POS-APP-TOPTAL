@@ -1,8 +1,11 @@
+import { PaymentModelsModule } from '@pos-app/models';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Config, config } from '../config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { PaymentModelsModule } from '@pos-app/models';
+
+import { Config, config } from '../config';
+import { PaymentListener } from '../listeners';
+import { AmqpModule } from './amqp';
 
 @Module({
   imports: [
@@ -21,8 +24,9 @@ import { PaymentModelsModule } from '@pos-app/models';
       },
     }),
     PaymentModelsModule,
+    AmqpModule,
   ],
-  providers: [],
+  providers: [PaymentListener],
   controllers: [],
 })
 export class AppModule {}
