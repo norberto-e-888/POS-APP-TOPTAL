@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ModelsModule } from '../models';
 import { AmqpModule } from './amqp';
 import { OutboxPublisherModule } from '@pos-app/outbox';
+import { OrderService } from '../services';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { OutboxPublisherModule } from '@pos-app/outbox';
     AmqpModule,
     OutboxPublisherModule,
   ],
+  providers: [OrderService],
   controllers: [],
-  providers: [],
 })
 export class AppModule {}

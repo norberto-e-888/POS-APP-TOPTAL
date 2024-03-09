@@ -22,7 +22,9 @@ export class OutboxService {
       routingKey?: string;
     },
     options: {
-      transformPayload?: (result: T) => unknown;
+      transformPayload?:
+        | ((result: T) => Promise<unknown>)
+        | ((result: T) => unknown);
       aggregate?: {
         collection: string;
         entityIdKey: string;
@@ -43,7 +45,7 @@ export class OutboxService {
           let aggregate: OutboxAggregate | null = null;
 
           if (options?.transformPayload) {
-            payload = JSON.stringify(options.transformPayload(data));
+            payload = JSON.stringify(await options.transformPayload(data));
           } else {
             payload = data ? JSON.stringify(data) : '{}';
           }
@@ -97,7 +99,7 @@ export class OutboxService {
             [
               {
                 exchange: message.exchange,
-                routingKey: message.routingKey,
+                routingKey: message.routingKey || '',
                 payload,
                 aggregate,
               },

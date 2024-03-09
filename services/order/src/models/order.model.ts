@@ -36,6 +36,7 @@ export class Order extends BaseModel {
     required: true,
     enum: Object.values(OrderStatus),
     type: String,
+    default: OrderStatus.PLACED,
   })
   status: OrderStatus;
 
