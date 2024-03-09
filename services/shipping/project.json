@@ -1,0 +1,24 @@
+{
+  "name": "services-shipping",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "services/shipping/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "services-shipping:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "services-shipping:build:development"
+        },
+        "production": {
+          "buildTarget": "services-shipping:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}
