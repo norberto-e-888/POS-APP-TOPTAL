@@ -1,20 +1,8 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpException,
-  HttpStatus,
-  Inject,
-  Post,
-  Req,
-  Res,
-} from '@nestjs/common';
-import { CookieOptions, Response, Request } from 'express';
+import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
+import { CookieOptions, Response } from 'express';
 import { AuthService } from '../services';
 import { SignInBody, SignUpBody } from '../validators';
-import { JWT } from '../lib';
-import { ConfigService } from '@nestjs/config';
-import { Config } from '../config';
+import { Authenticated, JWTPayload } from '@pos-app/auth';
 
 const JWT_COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
@@ -22,11 +10,7 @@ const JWT_COOKIE_OPTIONS: CookieOptions = {
 
 @Controller()
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    @Inject(JWT) private readonly jwt: JWT,
-    private readonly configService: ConfigService<Config>
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('sign-up')
   async handleSignUp(
@@ -59,17 +43,9 @@ export class AuthController {
     return { message: 'You have been signed out.' };
   }
 
+  @UseGuards(Authenticated)
   @Get('me')
-  async handleMe(@Req() req: Request) {
-    const jwt = req.cookies['jwt'];
-
-    if (!jwt) {
-      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
-    }
-
-    const jwtSecret = this.configService.get<Config['jwt']>('jwt').secret;
-    const payload = this.jwt.verify(jwt, jwtSecret) as { id: string };
-
-    return this.authService.getUserById(payload.id);
+  async handleMe(@JWTPayload() jwtPayload: JWTPayload) {
+    return this.authService.getUserById(jwtPayload.id);
   }
 }
