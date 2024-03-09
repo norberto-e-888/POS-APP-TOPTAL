@@ -89,7 +89,7 @@ export class OrderService {
       },
       {
         exchange: Exchange.OrderCreated,
-        routingKey: `${dto.shippingAddress.country}.${dto.shippingAddress.city}.${dto.shippingAddress.state}.${dto.shippingAddress.zip}`,
+        routingKey: `${dto.shippingAddress.country}.${dto.shippingAddress.state}.${dto.shippingAddress.city}.${dto.shippingAddress.zip}`,
       },
       {
         transformPayload: async (order) => {
