@@ -6,7 +6,7 @@ import {
   Types,
 } from 'mongoose';
 import { Coordinates, Pagination } from '@pos-app/validators';
-import { Point } from '@pos-app/models';
+import { BaseModel, Point } from '@pos-app/models';
 import { TransformFnParams } from 'class-transformer';
 
 const SKIP_FROM_REF_INTEGRITY_CHECK = new Set([
@@ -83,7 +83,7 @@ async function checkDocExists(
   }
 }
 
-export const schemaOptions = <M = Record<string, unknown>>(
+export const schemaOptions = <M extends BaseModel>(
   collection: string,
   options: Omit<
     SchemaOptions,

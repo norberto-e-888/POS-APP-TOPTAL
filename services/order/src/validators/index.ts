@@ -1,10 +1,12 @@
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsInt,
   IsMongoId,
   IsNumber,
   IsObject,
+  IsOptional,
   IsString,
   Min,
   ValidateNested,
@@ -34,7 +36,7 @@ class ShippingAddress {
   country: string;
 }
 
-class OrderItem {
+export class OrderItemValidator {
   @IsMongoId()
   @Transform(trim)
   @IsString()
@@ -56,6 +58,10 @@ export class CreateOrderBody {
   @ArrayMinSize(1)
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => OrderItem)
-  items: OrderItem[];
+  @Type(() => OrderItemValidator)
+  items: OrderItemValidator[];
+
+  @IsBoolean()
+  @IsOptional()
+  overrideIdempotency?: boolean;
 }

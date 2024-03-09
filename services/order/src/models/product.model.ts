@@ -14,7 +14,7 @@ export enum ProductCategory {
   // TODO: Add more categories
 }
 
-@Schema(schemaOptions(PRODUCT_MODEL_COLLECTION))
+@Schema(schemaOptions<Product>(PRODUCT_MODEL_COLLECTION))
 export class Product extends BaseModel {
   @Prop({
     required: true,

@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Order, Product } from '../models';
+import { Order, Product, getOrderhHash } from '../models';
 import { CreateOrderBody } from '../validators';
 import { OutboxService } from '@pos-app/outbox';
 import { Exchange } from '../app/amqp';
@@ -18,6 +18,23 @@ export class OrderService {
 
   async createOrder(dto: CreateOrderBody, userId: string) {
     const { items } = dto;
+
+    if (!dto.overrideIdempotency) {
+      const orderHash = await getOrderhHash(dto, userId);
+      const existingOrder = await this.orderModel.findOne({
+        hash: orderHash,
+        createdAt: {
+          $gte: new Date(Date.now() - 1000 * 60 * 10),
+        },
+      });
+
+      if (existingOrder) {
+        throw new HttpException(
+          'An order with the same items and shipping address has been placed within the last 10 minutes.',
+          HttpStatus.BAD_REQUEST
+        );
+      }
+    }
 
     return this.outboxService.publish(
       async (session) => {
