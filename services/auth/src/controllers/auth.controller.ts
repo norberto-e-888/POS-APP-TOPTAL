@@ -36,6 +36,7 @@ export class AuthController {
     return user;
   }
 
+  @UseGuards(Authenticated)
   @Post('sign-out')
   async handleSignOut(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('jwt', JWT_COOKIE_OPTIONS);
