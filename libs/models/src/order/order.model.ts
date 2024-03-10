@@ -20,6 +20,9 @@ export enum OrderStatus {
   SHIPPED = 'shipped',
   DELIVERED = 'delivered',
   CANCELLED = 'cancelled',
+  FAILED_SHIPPING = 'failed-shipping',
+  FAILED_DELIVERY = 'failed-delivery',
+  FAILED_PAYMENT = 'failed-payment',
 }
 
 @Schema(
