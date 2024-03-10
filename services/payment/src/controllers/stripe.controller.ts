@@ -13,13 +13,16 @@ import Stripe from 'stripe';
 import { STRIPE } from '../lib';
 import { ConfigService } from '@nestjs/config';
 import { Config } from '../config';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { Exchange } from '../app/amqp';
 
 @Controller()
 export class StripeController {
   constructor(
     @Inject(STRIPE)
     private readonly stripe: Stripe,
-    private readonly configService: ConfigService<Config>
+    private readonly configService: ConfigService<Config>,
+    private readonly amqp: AmqpConnection
   ) {}
 
   @Post('stripe-webhook')
@@ -44,7 +47,11 @@ export class StripeController {
         case 'checkout.session.completed':
           const checkoutSession = event.data.object;
           console.log('CHECKOUT SESSION COMPLETED: ', checkoutSession);
-          // Then define and call a function to handle the event checkout.session.completed
+          await this.amqp.publish(
+            Exchange.CHECKOUT_COMPLETED,
+            checkoutSession.currency,
+            checkoutSession
+          );
           return 'Ok.';
         case 'payment_intent.created':
           const paymentIntentCreated = event.data.object;
@@ -68,7 +75,7 @@ export class StripeController {
       }
     } catch (err) {
       console.log('ERROR: ', err);
-      throw new HttpException('Webhook Error', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Webhook Error.', HttpStatus.BAD_REQUEST);
     }
   }
 }

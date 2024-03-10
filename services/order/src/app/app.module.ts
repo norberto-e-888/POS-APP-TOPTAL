@@ -8,6 +8,7 @@ import { Config, config } from '../config';
 import { AmqpModule } from './amqp';
 import { OrderService } from '../services';
 import { OrderController } from '../controllers/order.controller';
+import { OrderListener } from '../listeners';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { OrderController } from '../controllers/order.controller';
     AmqpModule,
     OutboxPublisherModule,
   ],
-  providers: [OrderService],
+  providers: [OrderService, OrderListener],
   controllers: [OrderController],
 })
 export class AppModule {}

@@ -3,7 +3,9 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Config } from '../config';
 
-export enum Exchange {}
+export enum Exchange {
+  CHECKOUT_COMPLETED = 'payment.checkout-completed',
+}
 
 @Global()
 @Module({

@@ -79,6 +79,14 @@ export class PaymentListener {
         }),
         success_url: 'https://example.com/success',
         cancel_url: 'https://example.com/cancel',
+        metadata: {
+          mongoId: event.id,
+        },
+        payment_intent_data: {
+          metadata: {
+            mongoId: event.id,
+          },
+        },
       });
 
       console.log('STRIP SESSION: ', session);
