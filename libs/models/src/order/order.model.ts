@@ -18,6 +18,7 @@ export enum OrderStatus {
   PLACED = 'placed',
   PROCESSING = 'processing',
   SHIPPED = 'shipped',
+  DELIVERY_IN_PROGRESS = 'delivery-in-progress',
   DELIVERED = 'delivered',
   CANCELLED = 'cancelled',
   FAILED_SHIPPING = 'failed-shipping',
