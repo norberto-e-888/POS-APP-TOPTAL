@@ -37,7 +37,7 @@ export class PaymentListener {
   }
 
   @RabbitSubscribe({
-    exchange: 'order.created',
+    exchange: 'order.placed',
     routingKey: '#',
     queue: 'payment.charge-order',
   })

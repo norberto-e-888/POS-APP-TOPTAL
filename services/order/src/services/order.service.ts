@@ -1,4 +1,4 @@
-import { Order, Product, getOrderhHash } from '@pos-app/models';
+import { Order, Product } from '@pos-app/models';
 import { OutboxService } from '@pos-app/outbox';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -19,23 +19,6 @@ export class OrderService {
 
   async createOrder(dto: CreateOrderBody, userId: string) {
     const { items } = dto;
-
-    if (!dto.overrideIdempotency) {
-      const orderHash = await getOrderhHash(dto as unknown as Order, userId);
-      const existingOrder = await this.orderModel.findOne({
-        hash: orderHash,
-        createdAt: {
-          $gte: new Date(Date.now() - 1000 * 60 * 10),
-        },
-      });
-
-      if (existingOrder) {
-        throw new HttpException(
-          'An order with the same items and shipping address has been placed within the last 10 minutes.',
-          HttpStatus.BAD_REQUEST
-        );
-      }
-    }
 
     return this.outboxService.publish(
       async (session) => {
@@ -107,8 +90,28 @@ export class OrderService {
       },
       {
         exchange: Exchange.OrderCreated,
-        routingKey: `${dto.shippingAddress.country}.${dto.shippingAddress.state}.${dto.shippingAddress.city}.${dto.shippingAddress.zip}`,
       }
     );
   }
 }
+
+/* if (!dto.overrideIdempotency) {
+  const orderHash = await getOrderhHash(dto as unknown as Order, userId);
+  const existingOrder = await this.orderModel.findOne({
+    hash: orderHash,
+    createdAt: {
+      $gte: new Date(Date.now() - 1000 * 60 * 10),
+    },
+  });
+
+  if (existingOrder) {
+    throw new HttpException(
+      'An order with the same items and shipping address has been placed within the last 10 minutes.',
+      HttpStatus.BAD_REQUEST
+    );
+  }
+}
+
+
+        routingKey: `${dto.shippingAddress.country}.${dto.shippingAddress.state}.${dto.shippingAddress.city}.${dto.shippingAddress.zip}`,
+ */

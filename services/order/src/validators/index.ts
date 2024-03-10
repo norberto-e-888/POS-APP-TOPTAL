@@ -53,7 +53,8 @@ export class CreateOrderBody {
   @IsObject()
   @ValidateNested()
   @Type(() => ShippingAddress)
-  shippingAddress: ShippingAddress;
+  @IsOptional()
+  shippingAddress?: ShippingAddress;
 
   @ArrayMinSize(1)
   @IsArray()

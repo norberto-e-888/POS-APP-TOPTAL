@@ -15,6 +15,7 @@ import {
 export const ORDER_MODEL_COLLECTION = 'orders';
 
 export enum OrderStatus {
+  DRAFTING = 'drafting',
   PLACED = 'placed',
   PROCESSING = 'processing',
   SHIPPED = 'shipped',
@@ -36,16 +37,19 @@ export class Order extends BaseModel {
   customerId!: string;
 
   @Prop({
-    required: true,
+    required: function (this: Order) {
+      console.log('STATUS:', this.status);
+      return this.status !== OrderStatus.DRAFTING;
+    },
     type: OrderShippingAddressSchema,
   })
-  shippingAddress!: OrderShippingAddress;
+  shippingAddress?: OrderShippingAddress;
 
   @Prop({
     required: true,
     enum: Object.values(OrderStatus),
     type: String,
-    default: OrderStatus.PLACED,
+    default: OrderStatus.DRAFTING,
   })
   status!: OrderStatus;
 
@@ -87,6 +91,10 @@ async function setTotal(
 }
 
 export async function getOrderhHash(order: Order, userId: string) {
+  if (!order.shippingAddress) {
+    throw new Error('Order shipping address is required.');
+  }
+
   const shippingAddressHash = `${order.shippingAddress.country}.${order.shippingAddress.state}.${order.shippingAddress.city}.${order.shippingAddress.street}.${order.shippingAddress.zip}`;
   const itemsHash = order.items
     .map((item: OrderItem) => {
@@ -117,7 +125,9 @@ async function setHash(
   this: HydratedDocument<Order>,
   next: CallbackWithoutResultAndOptionalError
 ) {
-  this.hash = await getOrderhHash(this, this.customerId);
+  if (this.status === OrderStatus.PLACED) {
+    this.hash = await getOrderhHash(this, this.customerId);
+  }
 
   next();
 }
