@@ -14,6 +14,7 @@ export const config = () => ({
   stripe: {
     publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
     secret: process.env.STRIPE_SECRET,
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
   },
   misc: {
     port: parseInt(process.env.PORT, 10),

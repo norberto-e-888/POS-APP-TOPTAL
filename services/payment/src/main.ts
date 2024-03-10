@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { Config } from './config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bodyParser: false });
   const configService = app.get(ConfigService);
   const cookieSecret = configService.get<Config['cookie']>('cookie').secret;
 
