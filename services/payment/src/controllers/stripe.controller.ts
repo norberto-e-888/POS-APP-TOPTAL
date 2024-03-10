@@ -41,6 +41,11 @@ export class StripeController {
       );
 
       switch (event.type) {
+        case 'checkout.session.completed':
+          const checkoutSession = event.data.object;
+          console.log('CHECKOUT SESSION COMPLETED: ', checkoutSession);
+          // Then define and call a function to handle the event checkout.session.completed
+          return 'Ok.';
         case 'payment_intent.created':
           const paymentIntentCreated = event.data.object;
           console.log('PAYMENT INTENT CREATED: ', paymentIntentCreated);
