@@ -108,22 +108,6 @@ export class OrderService {
       {
         exchange: Exchange.OrderCreated,
         routingKey: `${dto.shippingAddress.country}.${dto.shippingAddress.state}.${dto.shippingAddress.city}.${dto.shippingAddress.zip}`,
-      },
-      {
-        transformPayload: async (order) => {
-          const items = await this.productModel.find({
-            _id: {
-              $in: order.items.map((item) => item.productId),
-            },
-          });
-
-          const itemsObjs = items.map((item) => item.toObject());
-
-          return {
-            ...order,
-            items: itemsObjs,
-          };
-        },
       }
     );
   }

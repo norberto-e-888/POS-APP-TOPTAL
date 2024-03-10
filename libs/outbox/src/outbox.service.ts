@@ -63,7 +63,9 @@ export class OutboxService {
 
             const entityId = JSON.parse(payload)[options.aggregate.entityIdKey];
 
-            const document = (await collection.findOne({})) as unknown as {
+            const document = (await collection.findOne({
+              _id: new Types.ObjectId(entityId),
+            })) as unknown as {
               _id: Schema.Types.ObjectId;
               _version?: number;
             };
