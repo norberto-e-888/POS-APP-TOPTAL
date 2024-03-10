@@ -83,7 +83,7 @@ async function setTotal(
   next: CallbackWithoutResultAndOptionalError
 ) {
   this.total = this.items.reduce(
-    (total, { price, quantity }) => total + quantity * price,
+    (total, { price, quantity }) => total + quantity * (price as number),
     0
   );
 

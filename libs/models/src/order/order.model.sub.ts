@@ -57,7 +57,7 @@ export class OrderItem {
   @Prop({
     min: 0.01,
   })
-  price!: number;
+  price?: number;
 }
 
 export const OrderItemSchema = SchemaFactory.createForClass(OrderItem);
