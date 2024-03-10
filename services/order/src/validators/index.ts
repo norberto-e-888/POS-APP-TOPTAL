@@ -61,7 +61,43 @@ export class CreateOrderBody {
   @ValidateNested({ each: true })
   @Type(() => OrderItemValidator)
   items: OrderItemValidator[];
+}
 
+export class AddShippingAddressBody {
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ShippingAddress)
+  shippingAddress: ShippingAddress;
+}
+
+export class AddItemBody {
+  @IsObject()
+  @ValidateNested()
+  @Type(() => OrderItemValidator)
+  item: OrderItemValidator;
+}
+
+export class RemoveItemBody {
+  @IsMongoId()
+  @Transform(trim)
+  @IsString()
+  productId: string;
+}
+
+export class UpdateItemBody {
+  @IsMongoId()
+  @Transform(trim)
+  @IsString()
+  productId: string;
+
+  @Min(1)
+  @IsInt()
+  @Transform(toInt)
+  @IsNumber()
+  quantity: number;
+}
+
+export class PlaceOrderBody {
   @IsBoolean()
   @IsOptional()
   overrideIdempotency?: boolean;

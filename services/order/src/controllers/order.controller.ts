@@ -1,6 +1,13 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { OrderService } from '../services';
-import { CreateOrderBody } from '../validators';
+import { AddShippingAddressBody, CreateOrderBody } from '../validators';
 import { Authenticated, JWTPayload, Roles } from '@pos-app/auth';
 
 @Controller()
@@ -15,5 +22,16 @@ export class OrderController {
     @JWTPayload() jwtPayload: JWTPayload
   ) {
     return this.orderService.createOrder(body, jwtPayload.id);
+  }
+
+  @UseGuards(Authenticated)
+  @Roles(['customer'])
+  @Patch('order/:id/shipping-address')
+  async handleAddShippingAddress(
+    @Body() body: AddShippingAddressBody,
+    @JWTPayload() jwtPayload: JWTPayload,
+    @Param('id') id: string
+  ) {
+    return this.orderService.addShippingAddress(body, jwtPayload.id, id);
   }
 }

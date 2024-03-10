@@ -1,10 +1,10 @@
-import { Order, Product } from '@pos-app/models';
+import { Order, OrderStatus, Product } from '@pos-app/models';
 import { OutboxService } from '@pos-app/outbox';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { CreateOrderBody } from '../validators';
+import { AddShippingAddressBody, CreateOrderBody } from '../validators';
 import { Exchange } from '../app/amqp';
 
 @Injectable()
@@ -92,6 +92,38 @@ export class OrderService {
         exchange: Exchange.OrderCreated,
       }
     );
+  }
+
+  async addShippingAddress(
+    { shippingAddress }: AddShippingAddressBody,
+    userId: string,
+    orderId: string
+  ) {
+    const order = await this.orderModel.findById(orderId);
+
+    if (!order && order.customerId !== userId) {
+      throw new HttpException(
+        `Order with id ${orderId} not found.`,
+        HttpStatus.NOT_FOUND
+      );
+    }
+
+    if (order.status !== OrderStatus.DRAFTING) {
+      throw new HttpException(
+        `Order with id ${orderId} is not in the drafting status.`,
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    const updatedOrder = await this.orderModel.findByIdAndUpdate(
+      orderId,
+      {
+        shippingAddress,
+      },
+      { new: true }
+    );
+
+    return updatedOrder.toObject();
   }
 }
 
