@@ -11,6 +11,7 @@ import {
   AddItemBody,
   AddShippingAddressBody,
   CreateOrderBody,
+  RemoveItemBody,
 } from '../validators';
 import { Authenticated, JWTPayload, Roles } from '@pos-app/auth';
 
@@ -48,5 +49,16 @@ export class OrderController {
     @Param('id') id: string
   ) {
     return this.orderService.addItem(body, jwtPayload.id, id);
+  }
+
+  @UseGuards(Authenticated)
+  @Roles(['customer'])
+  @Patch('order/:id/remove-item')
+  async handleRemoveItem(
+    @Body() body: RemoveItemBody,
+    @JWTPayload() jwtPayload: JWTPayload,
+    @Param('id') id: string
+  ) {
+    return this.orderService.removeItem(body, jwtPayload.id, id);
   }
 }
