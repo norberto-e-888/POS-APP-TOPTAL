@@ -3,6 +3,8 @@ import { CookieOptions, Response } from 'express';
 import { AuthService } from '../services';
 import { SignInBody, SignUpBody } from '../validators';
 import { Authenticated, JWTPayload } from '@pos-app/auth';
+import { ConfigService } from '@nestjs/config';
+import { Config } from '../config';
 
 const JWT_COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
@@ -10,14 +12,21 @@ const JWT_COOKIE_OPTIONS: CookieOptions = {
 
 @Controller()
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService<Config>
+  ) {}
 
   @Post('sign-up')
   async handleSignUp(
     @Body() body: SignUpBody,
     @Res({ passthrough: true }) res: Response
   ) {
-    const { jwt, user } = await this.authService.signUp(body);
+    const isAdmin =
+      body.adminApiKey ===
+      this.configService.get<Config['misc']>('misc').adminApiKey;
+
+    const { jwt, user } = await this.authService.signUp(body, isAdmin);
 
     res.cookie('jwt', jwt, JWT_COOKIE_OPTIONS);
 

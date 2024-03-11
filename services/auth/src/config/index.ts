@@ -13,6 +13,7 @@ export const config = () => ({
   },
   misc: {
     port: parseInt(process.env.PORT, 10),
+    adminApiKey: process.env.ADMIN_API_KEY,
   },
 });
 

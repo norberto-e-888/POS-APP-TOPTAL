@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { trim } from '@pos-app/utils';
 
@@ -25,4 +25,9 @@ export class SignUpBody {
   @MinLength(8)
   @IsString()
   confirmPassword: string;
+
+  @Transform(trim)
+  @IsString()
+  @IsOptional()
+  adminApiKey?: string;
 }

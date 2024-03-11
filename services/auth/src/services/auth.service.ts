@@ -24,7 +24,7 @@ export class AuthService {
     private readonly configService: ConfigService<Config>
   ) {}
 
-  async signUp(dto: SignUpBody) {
+  async signUp(dto: SignUpBody, admin?: boolean) {
     const existingUser = await this.userModel.findOne({
       email: dto.email,
     });
@@ -50,7 +50,7 @@ export class AuthService {
               lastName: dto.lastName,
               email: dto.email,
               password: hashedPassword,
-              roles: [UserRole.CUSTOMER],
+              roles: admin ? [UserRole.ADMIN] : [UserRole.CUSTOMER],
             },
           ],
           { session }
@@ -62,7 +62,7 @@ export class AuthService {
       },
       {
         exchange: Exchange.SignUp,
-        routingKey: UserRole.CUSTOMER,
+        routingKey: admin ? UserRole.ADMIN : UserRole.CUSTOMER,
       },
       {
         aggregate: {
