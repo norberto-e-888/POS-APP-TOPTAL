@@ -9,6 +9,8 @@ import { AmqpModule } from './amqp';
 import { OrderService } from '../services';
 import { OrderController } from '../controllers/order.controller';
 import { OrderListener } from '../listeners';
+import { ProductService } from '../services/product.service';
+import { ProductController } from '../controllers/product.controller';
 
 @Module({
   imports: [
@@ -30,7 +32,7 @@ import { OrderListener } from '../listeners';
     AmqpModule,
     OutboxPublisherModule,
   ],
-  providers: [OrderService, OrderListener],
-  controllers: [OrderController],
+  providers: [OrderService, OrderListener, ProductService],
+  controllers: [OrderController, ProductController],
 })
 export class AppModule {}

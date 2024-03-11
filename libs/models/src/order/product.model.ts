@@ -36,13 +36,6 @@ export class Product extends BaseModel {
 
   @Prop({
     required: true,
-    unique: true,
-    minlength: 2,
-  })
-  sku!: string;
-
-  @Prop({
-    required: true,
     enum: Object.values(ProductCategory),
     type: String,
   })
