@@ -133,7 +133,7 @@ export class AuthService {
       stripeId: msg.stripeId,
     });
 
-    return user;
+    return user.toObject();
   }
 
   private signJwt(user: HydratedDocument<User>) {
