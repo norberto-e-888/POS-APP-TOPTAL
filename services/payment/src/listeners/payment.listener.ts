@@ -72,7 +72,7 @@ export class PaymentListener {
                     ? item.productId
                     : item.productId.toString(),
               },
-              unit_amount: item.price * 100, // TODO: convert to cents,
+              unit_amount: item.price,
             },
             quantity: item.quantity,
           };
