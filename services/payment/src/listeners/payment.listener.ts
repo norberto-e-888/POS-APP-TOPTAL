@@ -89,7 +89,7 @@ export class PaymentListener {
         },
       });
 
-      console.log('STRIP SESSION: ', session);
+      console.log('STRIPE CHECKOUT URL: ', session.url);
 
       return new Nack(false);
     } catch (error) {
