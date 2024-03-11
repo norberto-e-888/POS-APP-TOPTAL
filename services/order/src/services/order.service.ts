@@ -1,4 +1,10 @@
-import { Order, OrderStatus, Product, getOrderhHash } from '@pos-app/models';
+import {
+  Order,
+  OrderStatus,
+  OrderType,
+  Product,
+  getOrderhHash,
+} from '@pos-app/models';
 import { OutboxService } from '@pos-app/outbox';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -26,8 +32,9 @@ export class OrderService {
     private readonly outboxService: OutboxService
   ) {}
 
-  async createOrder(dto: CreateOrderBody, userId: string) {
+  async createOrder(dto: CreateOrderBody, userId: string, isAdmin?: boolean) {
     const { items } = dto;
+    const orderType = isAdmin ? OrderType.IN_STORE : OrderType.ONLINE;
 
     return this.outboxService.publish(
       async (session) => {
@@ -88,7 +95,7 @@ export class OrderService {
               customerId: userId,
               shippingAddress: dto.shippingAddress,
               items,
-              type: dto.type,
+              type: orderType,
             },
           ],
           {
@@ -100,6 +107,7 @@ export class OrderService {
       },
       {
         exchange: Exchange.OrderCreated,
+        routingKey: orderType,
       }
     );
   }
@@ -471,7 +479,7 @@ export class OrderService {
       },
       {
         exchange: Exchange.OrderPlaced,
-        routingKey: `${order.shippingAddress.country}.${order.shippingAddress.state}.${order.shippingAddress.city}.${order.shippingAddress.zip}`,
+        routingKey: `${order.shippingAddress.country}.${order.shippingAddress.state}.${order.shippingAddress.city}.${order.shippingAddress.zip}.${order.type}`,
       }
     );
 

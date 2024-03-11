@@ -9,6 +9,11 @@ export enum UserRole {
   CUSTOMER = 'customer',
 }
 
+export enum CustomerStatus {
+  REGISTERED = 'registered',
+  UNREGISTERED = 'unregistered',
+}
+
 @Schema(
   schemaOptions<User>(USER_MODEL_COLLECTION, {
     omitFromTransform: ['password'],
@@ -17,15 +22,19 @@ export enum UserRole {
 export class User extends BaseModel {
   @Prop({
     type: String,
-    required: true,
+    required: function (this: User) {
+      return this.customerStatus === CustomerStatus.REGISTERED;
+    },
   })
-  firstName!: string;
+  firstName?: string;
 
   @Prop({
     type: String,
-    required: true,
+    required: function (this: User) {
+      return this.customerStatus === CustomerStatus.REGISTERED;
+    },
   })
-  lastName!: string;
+  lastName?: string;
 
   @Prop({
     type: String,
@@ -36,9 +45,23 @@ export class User extends BaseModel {
 
   @Prop({
     type: String,
-    required: true,
+    required: function (this: User) {
+      return this.customerStatus === CustomerStatus.REGISTERED;
+    },
   })
-  password!: string;
+  password?: string;
+
+  @Prop({
+    type: String,
+    required: true,
+    enum: Object.values(CustomerStatus),
+  })
+  customerStatus?: CustomerStatus;
+
+  @Prop({
+    unique: true,
+  })
+  stripeId?: string;
 
   @Prop({
     type: [String],

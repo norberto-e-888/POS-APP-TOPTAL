@@ -4,12 +4,18 @@ import { SignInBody, SignUpBody } from '../validators';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Model } from 'mongoose';
-import { USER_MODEL_COLLECTION, User, UserRole } from '@pos-app/models';
+import {
+  CustomerStatus,
+  USER_MODEL_COLLECTION,
+  User,
+  UserRole,
+} from '@pos-app/models';
 import { OutboxService } from '@pos-app/outbox';
 import { Exchange } from '../app/amqp';
 import { Config } from '../config';
 import { ConfigService } from '@nestjs/config';
 import { JWTPayload } from '@pos-app/auth';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 
 @Injectable()
 export class AuthService {
@@ -101,6 +107,33 @@ export class AuthService {
     }
 
     return user.toObject();
+  }
+
+  @RabbitRPC({
+    exchange: Exchange.CreateOrGetdUser,
+    routingKey: '#',
+    queue: 'auth.create-or-get-user',
+  })
+  protected async handleCreateOrGetUser(msg: {
+    email: string;
+    stripeId: string;
+  }) {
+    const existingUser = await this.userModel.findOne({
+      email: msg.email,
+    });
+
+    if (existingUser) {
+      return existingUser;
+    }
+
+    const user = await this.userModel.create({
+      email: msg.email,
+      roles: [UserRole.CUSTOMER],
+      customerStatus: CustomerStatus.UNREGISTERED,
+      stripeId: msg.stripeId,
+    });
+
+    return user;
   }
 
   private signJwt(user: HydratedDocument<User>) {
