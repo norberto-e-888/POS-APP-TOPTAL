@@ -9,6 +9,7 @@ import {
   AddShippingAddressBody,
   CreateOrderBody,
   RemoveItemBody,
+  UpdateItemBody,
 } from '../validators';
 import { Exchange } from '../app/amqp';
 
@@ -279,6 +280,95 @@ export class OrderService {
         order.items = order.items.filter(
           (item) => item.productId.toString() !== productId
         );
+
+        await order.save({ session });
+
+        updatedOrder = order.toObject();
+      });
+    } finally {
+      await session.endSession();
+    }
+
+    return updatedOrder;
+  }
+
+  async updateItem(dto: UpdateItemBody, userId: string, orderId: string) {
+    const order = await this.orderModel.findById(orderId);
+
+    if (!order || order.customerId !== userId) {
+      throw new HttpException(
+        `Order with id ${orderId} not found.`,
+        HttpStatus.NOT_FOUND
+      );
+    }
+
+    if (order.status !== OrderStatus.DRAFTING) {
+      throw new HttpException(
+        `Order with id ${orderId} is not in the drafting status.`,
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    const { productId, quantity } = dto;
+
+    const product = await this.productModel.findById(productId);
+
+    if (!product) {
+      throw new HttpException(
+        `Product with id ${productId} not found.`,
+        HttpStatus.NOT_FOUND
+      );
+    }
+
+    const item = order.items.find(
+      (item) => item.productId.toString() === productId
+    );
+
+    if (!item) {
+      throw new HttpException(
+        `Product with id ${productId} is not in the order.`,
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    const session = await this.productModel.startSession();
+
+    let updatedOrder: Order;
+
+    try {
+      await session.withTransaction(async () => {
+        const difference = item.quantity - quantity;
+
+        await this.productModel.updateOne(
+          { _id: productId },
+          {
+            $inc: {
+              'stock.reservedQuantity': difference * -1,
+            },
+          },
+          { session }
+        );
+
+        const updatedProduct = await this.productModel.findById(
+          productId,
+          undefined,
+          {
+            session,
+          }
+        );
+
+        if (
+          updatedProduct.stock.reservedQuantity >
+          updatedProduct.stock.availableQuantity
+        ) {
+          await session.abortTransaction();
+          throw new HttpException(
+            `The requested quantity for product with id ${productId} is greater than the available quantity.`,
+            HttpStatus.BAD_REQUEST
+          );
+        }
+
+        item.quantity = quantity;
 
         await order.save({ session });
 

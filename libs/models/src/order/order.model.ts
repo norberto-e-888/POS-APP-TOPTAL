@@ -38,7 +38,6 @@ export class Order extends BaseModel {
 
   @Prop({
     required: function (this: Order) {
-      console.log('STATUS:', this.status);
       return this.status !== OrderStatus.DRAFTING;
     },
     type: OrderShippingAddressSchema,
