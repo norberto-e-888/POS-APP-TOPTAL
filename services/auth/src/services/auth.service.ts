@@ -110,7 +110,7 @@ export class AuthService {
   }
 
   @RabbitRPC({
-    exchange: Exchange.CreateOrGetdUser,
+    exchange: Exchange.CreateOrGetUser,
     routingKey: '#',
     queue: 'auth.create-or-get-user',
   })

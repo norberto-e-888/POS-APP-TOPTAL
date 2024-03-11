@@ -5,7 +5,7 @@ import { Config } from '../config';
 
 export enum Exchange {
   SignUp = 'auth.sign-up',
-  CreateOrGetdUser = 'auth.create-or-get-user',
+  CreateOrGetUser = 'auth.create-or-get-user',
   GetUser = 'auth.get-user',
 }
 
