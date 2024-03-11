@@ -1,6 +1,6 @@
 import { Nack, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { Inject, Injectable } from '@nestjs/common';
-import { Order, OrderItem, User } from '@pos-app/models';
+import { Order, Product, User } from '@pos-app/models';
 import { STRIPE } from '../lib';
 import Stripe from 'stripe';
 
@@ -41,20 +41,21 @@ export class PaymentListener {
     routingKey: '#',
     queue: 'payment.charge-order',
   })
-  protected async handleChargeOrder(
-    event: Order & {
-      items: OrderItem[];
-    }
-  ) {
+  protected async handleChargeOrder(event: {
+    order: Order;
+    products: {
+      [key: string]: Product;
+    };
+  }) {
     try {
       console.log('PAYMENT.CHARGE-ORDER EVENT:', event);
 
       const result = await this.stripe.customers.search({
-        query: `metadata["mongoId"]:"${event.customerId}"`,
+        query: `metadata["mongoId"]:"${event.order.customerId}"`,
       });
 
       if (!result.data.length) {
-        console.log('No customer found with mongoId: ', event.customerId);
+        console.log('No customer found with mongoId: ', event.order.customerId);
         return new Nack(false);
       }
 
@@ -62,15 +63,16 @@ export class PaymentListener {
         customer: result.data[0].id,
         payment_method_types: ['card'],
         mode: 'payment',
-        line_items: event.items.map((item) => {
+        line_items: event.order.items.map((item) => {
           return {
             price_data: {
               currency: 'usd',
               product_data: {
-                name:
+                name: event.products[
                   typeof item.productId === 'string'
                     ? item.productId
-                    : item.productId.toString(),
+                    : item.productId.toString()
+                ].name,
               },
               unit_amount: item.price,
             },
@@ -80,11 +82,11 @@ export class PaymentListener {
         success_url: 'https://example.com/success',
         cancel_url: 'https://example.com/cancel',
         metadata: {
-          mongoId: event.id,
+          mongoId: event.order.id,
         },
         payment_intent_data: {
           metadata: {
-            mongoId: event.id,
+            mongoId: event.order.id,
           },
         },
       });

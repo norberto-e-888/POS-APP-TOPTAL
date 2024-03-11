@@ -425,9 +425,9 @@ export class OrderService {
       }
     }
 
-    return this.outboxService.publish(
+    const result = await this.outboxService.publish(
       async (session) => {
-        await Promise.all(
+        const products = await Promise.all(
           order.items.map(async (item) => {
             const product = await this.productModel.findById(item.productId);
 
@@ -448,6 +448,8 @@ export class OrderService {
               },
               { session }
             );
+
+            return product.toObject();
           })
         );
 
@@ -455,13 +457,24 @@ export class OrderService {
 
         await order.save({ session });
 
-        return order.toObject();
+        return {
+          order: order.toObject(),
+          products: products.reduce(
+            (map, product) => ({
+              ...map,
+              [product.id]: product,
+            }),
+            {}
+          ),
+        };
       },
       {
         exchange: Exchange.OrderPlaced,
         routingKey: `${order.shippingAddress.country}.${order.shippingAddress.state}.${order.shippingAddress.city}.${order.shippingAddress.zip}`,
       }
     );
+
+    return result.order;
   }
 
   async queryOrders(query: OrdersQuery, userId?: string) {
