@@ -88,6 +88,7 @@ export class OrderService {
               customerId: userId,
               shippingAddress: dto.shippingAddress,
               items,
+              type: dto.type,
             },
           ],
           {

@@ -27,6 +27,11 @@ export enum OrderStatus {
   FAILED_PAYMENT = 'failed-payment',
 }
 
+export enum OrderType {
+  IN_STORE = 'in-store',
+  ONLINE = 'online',
+}
+
 @Schema(
   schemaOptions<Order>(ORDER_MODEL_COLLECTION, { omitFromTransform: ['hash'] })
 )
@@ -63,6 +68,13 @@ export class Order extends BaseModel {
     min: 0.01,
   })
   total!: number;
+
+  @Prop({
+    required: true,
+    enum: Object.values(OrderType),
+    type: String,
+  })
+  type!: OrderType;
 
   @Prop()
   hash!: string;
