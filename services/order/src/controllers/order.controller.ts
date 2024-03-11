@@ -11,6 +11,7 @@ import {
   AddItemBody,
   AddShippingAddressBody,
   CreateOrderBody,
+  PlaceOrderBody,
   RemoveItemBody,
   UpdateItemBody,
 } from '../validators';
@@ -72,5 +73,16 @@ export class OrderController {
     @Param('id') id: string
   ) {
     return this.orderService.updateItem(body, jwtPayload.id, id);
+  }
+
+  @UseGuards(Authenticated)
+  @Roles(['customer'])
+  @Post('order/:id/place')
+  async handlePlaceOrder(
+    @Body() body: PlaceOrderBody,
+    @JWTPayload() jwtPayload: JWTPayload,
+    @Param('id') id: string
+  ) {
+    return this.orderService.placeOrder(body, jwtPayload.id, id);
   }
 }
