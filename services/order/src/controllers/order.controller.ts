@@ -108,4 +108,18 @@ export class OrderController {
   ) {
     return this.orderService.fetchOrderById(id, jwtPayload.id);
   }
+
+  @UseGuards(Authenticated)
+  @Roles(['admin'])
+  @Get('admin/order')
+  async handleAdminGetOrders(@Query() query: OrdersQuery) {
+    return this.orderService.queryOrders(query);
+  }
+
+  @UseGuards(Authenticated)
+  @Roles(['admin'])
+  @Get('admin/order/:id')
+  async handleAdminGetOrder(@Param('id') id: string) {
+    return this.orderService.fetchOrderById(id);
+  }
 }
