@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { OrderService } from '../services';
@@ -11,6 +13,7 @@ import {
   AddItemBody,
   AddShippingAddressBody,
   CreateOrderBody,
+  OrdersQuery,
   PlaceOrderBody,
   RemoveItemBody,
   UpdateItemBody,
@@ -84,5 +87,25 @@ export class OrderController {
     @Param('id') id: string
   ) {
     return this.orderService.placeOrder(body, jwtPayload.id, id);
+  }
+
+  @UseGuards(Authenticated)
+  @Roles(['customer'])
+  @Get('order')
+  async handleGetOrders(
+    @JWTPayload() jwtPayload: JWTPayload,
+    @Query() query: OrdersQuery
+  ) {
+    return this.orderService.queryOrders(query, jwtPayload.id);
+  }
+
+  @UseGuards(Authenticated)
+  @Roles(['customer'])
+  @Get('order/:id')
+  async handleGetOrder(
+    @JWTPayload() jwtPayload: JWTPayload,
+    @Param('id') id: string
+  ) {
+    return this.orderService.fetchOrderById(id, jwtPayload.id);
   }
 }

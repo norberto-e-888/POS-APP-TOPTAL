@@ -13,6 +13,7 @@ import {
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { toInt, trim } from '@pos-app/utils';
+import { Pagination } from '@pos-app/validators';
 
 class ShippingAddress {
   @Transform(trim)
@@ -101,4 +102,22 @@ export class PlaceOrderBody {
   @IsBoolean()
   @IsOptional()
   overrideIdempotency?: boolean;
+}
+
+export class OrdersQuery {
+  @IsObject()
+  @ValidateNested()
+  @Type(() => Pagination)
+  @IsOptional()
+  pagination?: Pagination;
+
+  @Transform(trim)
+  @IsString()
+  @IsOptional()
+  sortByField?: string;
+
+  @Transform(trim)
+  @IsString()
+  @IsOptional()
+  sortOrder?: 'asc' | 'desc';
 }

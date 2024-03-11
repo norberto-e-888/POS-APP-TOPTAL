@@ -8,11 +8,13 @@ import {
   AddItemBody,
   AddShippingAddressBody,
   CreateOrderBody,
+  OrdersQuery,
   PlaceOrderBody,
   RemoveItemBody,
   UpdateItemBody,
 } from '../validators';
 import { Exchange } from '../app/amqp';
+import { defaultPagination } from '@pos-app/utils';
 
 @Injectable()
 export class OrderService {
@@ -460,5 +462,35 @@ export class OrderService {
         routingKey: `${order.shippingAddress.country}.${order.shippingAddress.state}.${order.shippingAddress.city}.${order.shippingAddress.zip}`,
       }
     );
+  }
+
+  async queryOrders(query: OrdersQuery, userId?: string) {
+    const { pagination } = query;
+    const { page, size } = defaultPagination(pagination);
+    const filter = userId ? { customerId: userId } : {};
+    const sortField = query.sortByField || 'createdAt';
+    const sortOrder = query.sortOrder || 'desc';
+    const sort = { [sortField]: sortOrder };
+
+    const orders = await this.orderModel
+      .find(filter)
+      .skip((page - 1) * size)
+      .limit(size)
+      .sort(sort);
+
+    return orders.map((order) => order.toObject());
+  }
+
+  async fetchOrderById(orderId: string, userId?: string) {
+    const order = await this.orderModel.findById(orderId);
+
+    if (!order || (userId && order.customerId !== userId)) {
+      throw new HttpException(
+        `Order with id ${orderId} not found.`,
+        HttpStatus.NOT_FOUND
+      );
+    }
+
+    return order.toObject();
   }
 }
