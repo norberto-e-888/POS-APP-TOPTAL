@@ -13,7 +13,7 @@ export class PaymentListener {
 
   @RabbitSubscribe({
     exchange: 'order.placed',
-    routingKey: OrderType.ONLINE,
+    routingKey: `*.*.*.*.${OrderType.ONLINE}`,
     queue: 'payment.charge-online-order',
   })
   protected async handleChargeOnlineOrder(event: {
@@ -77,7 +77,7 @@ export class PaymentListener {
 
   @RabbitSubscribe({
     exchange: 'order.placed',
-    routingKey: OrderType.IN_STORE,
+    routingKey: `*.*.*.*.${OrderType.IN_STORE}`,
     queue: 'payment.charge-in-store-order',
   })
   protected async handleChargeInStoreOrder(event: {

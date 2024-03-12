@@ -158,7 +158,7 @@ export class AuthService {
   @RabbitSubscribe({
     exchange: 'auth.sign-up',
     routingKey: 'customer',
-    queue: 'payment.create-customer',
+    queue: 'auth.create-customer',
   })
   protected async handleCreateCustomer(event: User) {
     try {

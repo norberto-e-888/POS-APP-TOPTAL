@@ -5,7 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { AuthService } from '../services';
-import { BcryptProvider, JWTProvider } from '../lib';
+import { BcryptProvider, JWTProvider, StripeProvider } from '../lib';
 import { Config, config } from '../config';
 import { AmqpModule } from './amqp';
 import { AuthController } from '../controllers/auth.controller';
@@ -30,7 +30,7 @@ import { AuthController } from '../controllers/auth.controller';
     AmqpModule,
     OutboxPublisherModule,
   ],
-  providers: [BcryptProvider, JWTProvider, AuthService],
+  providers: [BcryptProvider, JWTProvider, AuthService, StripeProvider],
   controllers: [AuthController],
 })
 export class AppModule {}
