@@ -18,7 +18,9 @@ export class CustomerAggregation extends BaseModel {
 
   @Prop({
     default: 0,
-    set: (value: number) => value / 100,
+    set: function (this: CustomerAggregation) {
+      return this.totalAmount / this.numberOfPayments;
+    },
   })
   averageAmount!: number;
 
@@ -27,6 +29,11 @@ export class CustomerAggregation extends BaseModel {
     default: {},
   })
   productFrequency!: Record<string, number>;
+
+  @Prop({
+    required: true,
+  })
+  customerId!: string;
 }
 
 export const CustomerAggregationSchema =
