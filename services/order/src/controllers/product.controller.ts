@@ -7,7 +7,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Authenticated, Roles } from '@pos-app/auth';
-import { ProductService } from '../services/product.service';
+import { ProductService } from '../services';
 import { AddProductStockBody, CreateProductBody } from '../validators';
 
 @Controller()

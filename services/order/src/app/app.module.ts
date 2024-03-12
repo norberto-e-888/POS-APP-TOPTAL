@@ -6,11 +6,17 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { Config, config } from '../config';
 import { AmqpModule } from './amqp';
-import { OrderService } from '../services';
-import { OrderController } from '../controllers/order.controller';
+import {
+  OrderService,
+  ProductService,
+  CustomerAggregationService,
+} from '../services';
 import { OrderListener } from '../listeners';
-import { ProductService } from '../services/product.service';
-import { ProductController } from '../controllers/product.controller';
+import {
+  OrderController,
+  ProductController,
+  CustomerAggregationController,
+} from '../controllers';
 
 @Module({
   imports: [
@@ -32,7 +38,16 @@ import { ProductController } from '../controllers/product.controller';
     AmqpModule,
     OutboxPublisherModule,
   ],
-  providers: [OrderService, OrderListener, ProductService],
-  controllers: [OrderController, ProductController],
+  providers: [
+    OrderService,
+    OrderListener,
+    ProductService,
+    CustomerAggregationService,
+  ],
+  controllers: [
+    OrderController,
+    ProductController,
+    CustomerAggregationController,
+  ],
 })
 export class AppModule {}
