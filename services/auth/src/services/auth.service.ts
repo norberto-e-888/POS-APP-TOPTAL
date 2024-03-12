@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { JWT, BCRYPT } from '../lib';
+import { JWT, BCRYPT, STRIPE } from '../lib';
 import { SignInBody, SignUpBody } from '../validators';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
@@ -15,7 +15,8 @@ import { Exchange } from '../app/amqp';
 import { Config } from '../config';
 import { ConfigService } from '@nestjs/config';
 import { JWTPayload } from '@pos-app/auth';
-import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { Nack, RabbitRPC, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import Stripe from 'stripe';
 
 @Injectable()
 export class AuthService {
@@ -27,7 +28,8 @@ export class AuthService {
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
     private readonly outboxService: OutboxService,
-    private readonly configService: ConfigService<Config>
+    private readonly configService: ConfigService<Config>,
+    @Inject(STRIPE) private readonly stripe: Stripe
   ) {}
 
   async signUp(dto: SignUpBody, admin?: boolean) {
@@ -114,10 +116,19 @@ export class AuthService {
     routingKey: '#',
     queue: 'auth.create-or-get-user',
   })
-  protected async handleCreateOrGetUser(msg: {
-    email: string;
-    stripeId: string;
-  }) {
+  protected async handleCreateOrGetUser(msg: { email: string }) {
+    let {
+      data: [customer],
+    } = await this.stripe.customers.list({
+      email: msg.email,
+    });
+
+    if (!customer) {
+      customer = await this.stripe.customers.create({
+        email: msg.email,
+      });
+    }
+
     const existingUser = await this.userModel.findOne({
       email: msg.email,
     });
@@ -130,10 +141,48 @@ export class AuthService {
       email: msg.email,
       roles: [UserRole.CUSTOMER],
       customerStatus: CustomerStatus.UNREGISTERED,
-      stripeId: msg.stripeId,
+      stripeId: customer.id,
     });
 
     return user.toObject();
+  }
+
+  @RabbitSubscribe({
+    exchange: 'auth.sign-up',
+    routingKey: 'customer',
+    queue: 'payment.create-customer',
+  })
+  protected async handleCreateCustomer(event: User) {
+    try {
+      console.log('PAYMENT.CREATE-CUSTOMER EVENT:', event);
+
+      let {
+        data: [customer],
+      } = await this.stripe.customers.list({
+        email: event.email,
+      });
+
+      if (!customer) {
+        customer = await this.stripe.customers.create({
+          email: event.email,
+          name: `${event.firstName} ${event.lastName}`,
+          metadata: {
+            mongoId: event.id,
+          },
+        });
+      }
+
+      await this.userModel.findByIdAndUpdate(event.id, {
+        stripeId: customer.id,
+      });
+
+      console.log('STRIPE CUSTOMER: ', customer);
+
+      return new Nack(false);
+    } catch (error) {
+      console.log('PAYMENT.CREATE-CUSTOMER ERROR: ', error);
+      return new Nack(false);
+    }
   }
 
   private signJwt(user: HydratedDocument<User>) {

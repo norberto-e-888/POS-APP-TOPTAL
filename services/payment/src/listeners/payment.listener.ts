@@ -1,6 +1,6 @@
 import { Nack, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { Inject, Injectable } from '@nestjs/common';
-import { Order, Product, User } from '@pos-app/models';
+import { Order, OrderType, Product } from '@pos-app/models';
 import { STRIPE } from '../lib';
 import Stripe from 'stripe';
 
@@ -12,36 +12,11 @@ export class PaymentListener {
   ) {}
 
   @RabbitSubscribe({
-    exchange: 'auth.sign-up',
-    routingKey: 'customer',
-    queue: 'payment.create-customer',
-  })
-  protected async handleCreateCustomer(event: User) {
-    try {
-      console.log('PAYMENT.CREATE-CUSTOMER EVENT:', event);
-      const customer = await this.stripe.customers.create({
-        email: event.email,
-        name: `${event.firstName} ${event.lastName}`,
-        metadata: {
-          mongoId: event.id,
-        },
-      });
-
-      console.log('STRIPE CUSTOMER: ', customer);
-
-      return new Nack(false);
-    } catch (error) {
-      console.log('PAYMENT.CREATE-CUSTOMER ERROR: ', error);
-      return new Nack(false);
-    }
-  }
-
-  @RabbitSubscribe({
     exchange: 'order.placed',
-    routingKey: '#',
-    queue: 'payment.charge-order',
+    routingKey: OrderType.ONLINE,
+    queue: 'payment.charge-online-order',
   })
-  protected async handleChargeOrder(event: {
+  protected async handleChargeOnlineOrder(event: {
     order: Order;
     products: {
       [key: string]: Product;

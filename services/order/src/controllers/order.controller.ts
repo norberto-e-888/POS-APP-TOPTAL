@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  Inject,
   Param,
   Patch,
   Post,
@@ -21,8 +20,6 @@ import {
   UpdateItemBody,
 } from '../validators';
 import { Authenticated, JWTPayload, Roles } from '@pos-app/auth';
-import { STRIPE } from '../lib';
-import Stripe from 'stripe';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { User } from '@pos-app/models';
 
@@ -30,7 +27,6 @@ import { User } from '@pos-app/models';
 export class OrderController {
   constructor(
     private readonly orderService: OrderService,
-    @Inject(STRIPE) private readonly stripe: Stripe,
     private readonly amqpConnection: AmqpConnection
   ) {}
 
@@ -48,24 +44,11 @@ export class OrderController {
   @Roles(['admin'])
   @Post('admin/order')
   async handleAdminOrder(@Body() body: CreateAdminOrderBody) {
-    const { data } = await this.stripe.customers.list({
-      email: body.customerEmail,
-    });
-
-    let [customer] = data;
-
-    if (!customer) {
-      customer = await this.stripe.customers.create({
-        email: body.customerEmail,
-      });
-    }
-
     const user = await this.amqpConnection.request<User>({
       exchange: 'auth.create-or-get-user',
       routingKey: '',
       payload: {
         email: body.customerEmail,
-        stripeId: customer.id,
       },
     });
 

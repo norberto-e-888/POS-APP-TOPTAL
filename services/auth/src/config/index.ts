@@ -11,6 +11,10 @@ export const config = () => ({
   cookie: {
     secret: process.env.COOKIE_SECRET,
   },
+  stripe: {
+    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
+    secret: process.env.STRIPE_SECRET,
+  },
   misc: {
     port: parseInt(process.env.PORT, 10),
     adminApiKey: process.env.ADMIN_API_KEY,
