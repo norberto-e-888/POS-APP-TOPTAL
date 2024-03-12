@@ -14,6 +14,7 @@ import { AmqpModule } from './amqp';
 import { StripeProvider } from '../lib/stripe-client';
 import { StripeController } from '../controllers';
 import { JsonBodyMiddleware, RawBodyMiddleware } from '../lib';
+import { OutboxPublisherModule } from '@pos-app/outbox';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { JsonBodyMiddleware, RawBodyMiddleware } from '../lib';
     }),
     PaymentModelsModule,
     AmqpModule,
+    OutboxPublisherModule,
   ],
   providers: [PaymentListener, StripeProvider],
   controllers: [StripeController],

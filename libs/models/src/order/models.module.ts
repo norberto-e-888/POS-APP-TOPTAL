@@ -2,6 +2,10 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Order, OrderSchema } from './order.model';
 import { Product, ProductSchema } from './product.model';
+import {
+  CustomerAggregation,
+  CustomerAggregationSchema,
+} from './customer-aggregation.model';
 
 @Module({
   imports: [
@@ -13,6 +17,10 @@ import { Product, ProductSchema } from './product.model';
       {
         name: Product.name,
         schema: ProductSchema,
+      },
+      {
+        name: CustomerAggregation.name,
+        schema: CustomerAggregationSchema,
       },
     ]),
   ],
