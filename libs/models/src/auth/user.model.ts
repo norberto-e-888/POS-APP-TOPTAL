@@ -60,6 +60,7 @@ export class User extends BaseModel {
 
   @Prop({
     unique: true,
+    sparse: true,
   })
   stripeId?: string;
 

@@ -157,13 +157,13 @@ export class AuthService {
   }
 
   @RabbitSubscribe({
-    exchange: 'auth.sign-up',
-    routingKey: 'customer',
+    exchange: Exchange.SignUp,
+    routingKey: UserRole.CUSTOMER,
     queue: 'auth.create-customer',
   })
   protected async handleCreateCustomer(event: User) {
     try {
-      console.log('PAYMENT.CREATE-CUSTOMER EVENT:', event);
+      console.log('AUTH.CREATE-CUSTOMER EVENT:', event);
 
       let {
         data: [customer],
@@ -189,7 +189,7 @@ export class AuthService {
 
       return new Nack(false);
     } catch (error) {
-      console.log('PAYMENT.CREATE-CUSTOMER ERROR: ', error);
+      console.log('AUTH.CREATE-CUSTOMER ERROR: ', error);
       return new Nack(false);
     }
   }
