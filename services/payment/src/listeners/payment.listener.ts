@@ -40,37 +40,42 @@ export class PaymentListener {
         return new Nack(false);
       }
 
-      const session = await this.stripe.checkout.sessions.create({
-        customer: result.data[0].id,
-        payment_method_types: ['card'],
-        mode: 'payment',
-        line_items: event.order.items.map((item) => {
-          return {
-            price_data: {
-              currency: 'usd',
-              product_data: {
-                name: event.products[
-                  typeof item.productId === 'string'
-                    ? item.productId
-                    : item.productId.toString()
-                ].name,
+      const session = await this.stripe.checkout.sessions.create(
+        {
+          customer: result.data[0].id,
+          payment_method_types: ['card'],
+          mode: 'payment',
+          line_items: event.order.items.map((item) => {
+            return {
+              price_data: {
+                currency: 'usd',
+                product_data: {
+                  name: event.products[
+                    typeof item.productId === 'string'
+                      ? item.productId
+                      : item.productId.toString()
+                  ].name,
+                },
+                unit_amount: item.price,
               },
-              unit_amount: item.price,
-            },
-            quantity: item.quantity,
-          };
-        }),
-        success_url: 'https://example.com/success',
-        cancel_url: 'https://example.com/cancel',
-        metadata: {
-          mongoId: event.order.id,
-        },
-        payment_intent_data: {
+              quantity: item.quantity,
+            };
+          }),
+          success_url: 'https://example.com/success',
+          cancel_url: 'https://example.com/cancel',
           metadata: {
             mongoId: event.order.id,
           },
+          payment_intent_data: {
+            metadata: {
+              mongoId: event.order.id,
+            },
+          },
         },
-      });
+        {
+          idempotencyKey: event.order.id,
+        }
+      );
 
       console.log('STRIPE CHECKOUT URL: ', session.url);
 
