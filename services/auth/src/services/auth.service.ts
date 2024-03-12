@@ -117,6 +117,22 @@ export class AuthService {
     queue: 'auth.create-or-get-user',
   })
   protected async handleCreateOrGetUser(msg: { email: string }) {
+    const existingUser = await this.userModel.findOne({
+      email: msg.email,
+    });
+
+    if (existingUser && existingUser.stripeId) {
+      return existingUser;
+    }
+
+    const user = existingUser
+      ? existingUser
+      : await this.userModel.create({
+          email: msg.email,
+          roles: [UserRole.CUSTOMER],
+          customerStatus: CustomerStatus.UNREGISTERED,
+        });
+
     let {
       data: [customer],
     } = await this.stripe.customers.list({
@@ -126,21 +142,13 @@ export class AuthService {
     if (!customer) {
       customer = await this.stripe.customers.create({
         email: msg.email,
+        metadata: {
+          mongoId: user.id,
+        },
       });
     }
 
-    const existingUser = await this.userModel.findOne({
-      email: msg.email,
-    });
-
-    if (existingUser) {
-      return existingUser;
-    }
-
-    const user = await this.userModel.create({
-      email: msg.email,
-      roles: [UserRole.CUSTOMER],
-      customerStatus: CustomerStatus.UNREGISTERED,
+    await this.userModel.findByIdAndUpdate(user.id, {
       stripeId: customer.id,
     });
 

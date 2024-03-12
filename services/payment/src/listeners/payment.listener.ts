@@ -74,4 +74,43 @@ export class PaymentListener {
       return new Nack(false);
     }
   }
+
+  @RabbitSubscribe({
+    exchange: 'order.placed',
+    routingKey: OrderType.IN_STORE,
+    queue: 'payment.charge-in-store-order',
+  })
+  protected async handleChargeInStoreOrder(event: {
+    order: Order;
+    products: {
+      [key: string]: Product;
+    };
+  }) {
+    try {
+      console.log('PAYMENT.CHARGE-IN-STORE-ORDER EVENT:', event);
+
+      const result = await this.stripe.customers.search({
+        query: `metadata["mongoId"]:"${event.order.customerId}"`,
+      });
+
+      if (!result.data.length) {
+        console.log('No customer found with mongoId: ', event.order.customerId);
+        return new Nack(false);
+      }
+
+      const paymentIntent = await this.stripe.charges.create({
+        amount: event.order.total,
+        currency: 'usd',
+        source: 'tok_visa',
+        description: `In-store order payment for order: ${event.order.id}`,
+      });
+
+      console.log('STRIPE PAYMENT INTENT: ', paymentIntent);
+
+      return new Nack(false);
+    } catch (error) {
+      console.log('PAYMENT.CHARGE-IN-STORE-ORDER ERROR: ', error);
+      return new Nack(false);
+    }
+  }
 }
