@@ -169,3 +169,27 @@ export class AddProductStockBody {
   @IsNumber()
   quantity: number;
 }
+
+export class ProductsQuery {
+  @IsObject()
+  @ValidateNested()
+  @Type(() => Pagination)
+  @IsOptional()
+  pagination?: Pagination;
+
+  @Transform(trim)
+  @IsString()
+  @IsOptional()
+  sortByField?: string;
+
+  @Transform(trim)
+  @IsString()
+  @IsOptional()
+  sortOrder?: 'asc' | 'desc';
+
+  @IsEnum(ProductCategory)
+  @Transform(trim)
+  @IsString()
+  @IsOptional()
+  category?: ProductCategory;
+}

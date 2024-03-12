@@ -1,14 +1,20 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { Authenticated, Roles } from '@pos-app/auth';
 import { ProductService } from '../services';
-import { AddProductStockBody, CreateProductBody } from '../validators';
+import {
+  AddProductStockBody,
+  CreateProductBody,
+  ProductsQuery,
+} from '../validators';
 
 @Controller()
 export class ProductController {
@@ -29,5 +35,12 @@ export class ProductController {
     @Param('id') id: string
   ) {
     return this.productService.addStock(body, id);
+  }
+
+  @UseGuards(Authenticated)
+  @Roles(['admin', 'customer'])
+  @Get('product')
+  async handleQueryProducts(@Query() query: ProductsQuery) {
+    return this.productService.queryProducts(query);
   }
 }
