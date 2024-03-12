@@ -114,7 +114,7 @@ export class AuthService {
   @RabbitRPC({
     exchange: Exchange.CreateOrGetUser,
     routingKey: '#',
-    queue: 'auth.create-or-get-user',
+    queue: 'auth.handle-create-or-get-user',
   })
   protected async handleCreateOrGetUser(msg: { email: string }) {
     const existingUser = await this.userModel.findOne({
