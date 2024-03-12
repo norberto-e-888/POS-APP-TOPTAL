@@ -98,14 +98,14 @@ export class PaymentListener {
         return new Nack(false);
       }
 
-      const paymentIntent = await this.stripe.charges.create({
+      const charge = await this.stripe.charges.create({
         amount: event.order.total,
         currency: 'usd',
         source: 'tok_visa',
         description: `In-store order payment for order: ${event.order.id}`,
       });
 
-      console.log('STRIPE PAYMENT INTENT: ', paymentIntent);
+      console.log('STRIPE PAYMENT CHARGE: ', charge);
 
       return new Nack(false);
     } catch (error) {
