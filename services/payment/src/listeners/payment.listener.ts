@@ -1,14 +1,20 @@
-import { Nack, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import {
+  AmqpConnection,
+  Nack,
+  RabbitSubscribe,
+} from '@golevelup/nestjs-rabbitmq';
 import { Inject, Injectable } from '@nestjs/common';
 import { Order, OrderType, Product } from '@pos-app/models';
 import { STRIPE } from '../lib';
 import Stripe from 'stripe';
+import { Exchange } from '../app/amqp';
 
 @Injectable()
 export class PaymentListener {
   constructor(
     @Inject(STRIPE)
-    private readonly stripe: Stripe
+    private readonly stripe: Stripe,
+    private readonly amqp: AmqpConnection
   ) {}
 
   @RabbitSubscribe({
@@ -98,11 +104,22 @@ export class PaymentListener {
         return new Nack(false);
       }
 
-      const charge = await this.stripe.charges.create({
-        amount: event.order.total,
-        currency: 'usd',
-        source: 'tok_visa',
-        description: `In-store order payment for order: ${event.order.id}`,
+      const charge = await this.stripe.charges.create(
+        {
+          amount: event.order.total,
+          currency: 'usd',
+          source: 'tok_visa',
+          description: `In-store order payment for order: ${event.order.id}`,
+        },
+        {
+          idempotencyKey: event.order.id,
+        }
+      );
+
+      await this.amqp.publish(Exchange.CHECKOUT_COMPLETED, 'usd', {
+        metadata: {
+          mongoId: event.order.id,
+        },
       });
 
       console.log('STRIPE PAYMENT CHARGE: ', charge);
