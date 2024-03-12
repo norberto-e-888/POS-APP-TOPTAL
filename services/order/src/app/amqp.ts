@@ -6,6 +6,7 @@ import { Config } from '../config';
 export enum Exchange {
   OrderCreated = 'order.created',
   OrderPlaced = 'order.placed',
+  OrderProcessing = 'order.processing',
 }
 
 @Global()
