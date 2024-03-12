@@ -59,6 +59,7 @@ export class AuthService {
               email: dto.email,
               password: hashedPassword,
               roles: admin ? [UserRole.ADMIN] : [UserRole.CUSTOMER],
+              customerStatus: CustomerStatus.REGISTERED,
             },
           ],
           { session }
@@ -113,7 +114,7 @@ export class AuthService {
 
   @RabbitRPC({
     exchange: Exchange.CreateOrGetUser,
-    routingKey: '#',
+    routingKey: '',
     queue: 'auth.handle-create-or-get-user',
   })
   protected async handleCreateOrGetUser(msg: { email: string }) {

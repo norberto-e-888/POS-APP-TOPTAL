@@ -52,11 +52,13 @@ export class OrderController {
       },
     });
 
+    console.log('USER', user);
+
     return this.orderService.createOrder(body, user.id, true);
   }
 
   @UseGuards(Authenticated)
-  @Roles(['customer'])
+  @Roles(['customer', 'admin'])
   @Patch('order/:id/shipping-address')
   async handleAddShippingAddress(
     @Body() body: AddShippingAddressBody,
@@ -67,7 +69,7 @@ export class OrderController {
   }
 
   @UseGuards(Authenticated)
-  @Roles(['customer'])
+  @Roles(['customer', 'admin'])
   @Patch('order/:id/add-item')
   async handleAddItem(
     @Body() body: AddItemBody,
@@ -78,7 +80,7 @@ export class OrderController {
   }
 
   @UseGuards(Authenticated)
-  @Roles(['customer'])
+  @Roles(['customer', 'admin'])
   @Patch('order/:id/remove-item')
   async handleRemoveItem(
     @Body() body: RemoveItemBody,
@@ -89,7 +91,7 @@ export class OrderController {
   }
 
   @UseGuards(Authenticated)
-  @Roles(['customer'])
+  @Roles(['customer', 'admin'])
   @Patch('order/:id/update-item')
   async handleUpdateItem(
     @Body() body: UpdateItemBody,
@@ -100,7 +102,7 @@ export class OrderController {
   }
 
   @UseGuards(Authenticated)
-  @Roles(['customer'])
+  @Roles(['customer', 'admin'])
   @Post('order/:id/place')
   async handlePlaceOrder(
     @Body() body: PlaceOrderBody,

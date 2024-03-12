@@ -56,7 +56,7 @@ export class User extends BaseModel {
     required: true,
     enum: Object.values(CustomerStatus),
   })
-  customerStatus?: CustomerStatus;
+  customerStatus!: CustomerStatus;
 
   @Prop({
     unique: true,
