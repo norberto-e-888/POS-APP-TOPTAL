@@ -5,6 +5,7 @@ import { Config } from '../config';
 
 export enum Exchange {
   OrderCreated = 'order.created',
+  OrderCancelled = 'order.cancelled',
   OrderPlaced = 'order.placed',
   OrderProcessing = 'order.processing',
 }

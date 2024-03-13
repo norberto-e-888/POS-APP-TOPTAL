@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -52,9 +53,17 @@ export class OrderController {
       },
     });
 
-    console.log('USER', user);
-
     return this.orderService.createOrder(body, user.id, true);
+  }
+
+  @UseGuards(Authenticated)
+  @Roles(['admin', 'customer'])
+  @Delete('order/:id/cancel')
+  async handleCancelOrder(
+    @JWTPayload() jwtPayload: JWTPayload,
+    @Param('id') id: string
+  ) {
+    return this.orderService.cancelOrder(id, this.getUserId(jwtPayload));
   }
 
   @UseGuards(Authenticated)
@@ -65,7 +74,11 @@ export class OrderController {
     @JWTPayload() jwtPayload: JWTPayload,
     @Param('id') id: string
   ) {
-    return this.orderService.addShippingAddress(body, jwtPayload.id, id);
+    return this.orderService.addShippingAddress(
+      body,
+      id,
+      this.getUserId(jwtPayload)
+    );
   }
 
   @UseGuards(Authenticated)
@@ -76,7 +89,7 @@ export class OrderController {
     @JWTPayload() jwtPayload: JWTPayload,
     @Param('id') id: string
   ) {
-    return this.orderService.addItem(body, jwtPayload.id, id);
+    return this.orderService.addItem(body, id, this.getUserId(jwtPayload));
   }
 
   @UseGuards(Authenticated)
@@ -87,7 +100,7 @@ export class OrderController {
     @JWTPayload() jwtPayload: JWTPayload,
     @Param('id') id: string
   ) {
-    return this.orderService.removeItem(body, jwtPayload.id, id);
+    return this.orderService.removeItem(body, id, this.getUserId(jwtPayload));
   }
 
   @UseGuards(Authenticated)
@@ -98,7 +111,7 @@ export class OrderController {
     @JWTPayload() jwtPayload: JWTPayload,
     @Param('id') id: string
   ) {
-    return this.orderService.updateItem(body, jwtPayload.id, id);
+    return this.orderService.updateItem(body, id, this.getUserId(jwtPayload));
   }
 
   @UseGuards(Authenticated)
@@ -109,7 +122,7 @@ export class OrderController {
     @JWTPayload() jwtPayload: JWTPayload,
     @Param('id') id: string
   ) {
-    return this.orderService.placeOrder(body, jwtPayload.id, id);
+    return this.orderService.placeOrder(body, id, this.getUserId(jwtPayload));
   }
 
   @UseGuards(Authenticated)
@@ -144,5 +157,9 @@ export class OrderController {
   @Get('admin/order/:id')
   async handleAdminGetOrder(@Param('id') id: string) {
     return this.orderService.fetchOrderById(id);
+  }
+
+  private getUserId(jwtPayload: JWTPayload) {
+    return jwtPayload.roles.includes('admin') ? undefined : jwtPayload.id;
   }
 }

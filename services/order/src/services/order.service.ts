@@ -112,14 +112,63 @@ export class OrderService {
     );
   }
 
+  async cancelOrder(orderId: string, userId?: string) {
+    const order = await this.orderModel.findById(orderId);
+
+    if (!order || (userId && order.customerId !== userId)) {
+      throw new HttpException(
+        `Order with id ${orderId} not found.`,
+        HttpStatus.NOT_FOUND
+      );
+    }
+
+    if (order.status !== OrderStatus.DRAFTING) {
+      throw new HttpException(
+        `Order with id ${orderId} is not in the drafting status.`,
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    const result = await this.outboxService.publish(
+      async (session) => {
+        await Promise.all(
+          order.items.map(async (item) => {
+            await this.productModel.updateOne(
+              { _id: item.productId },
+              {
+                $inc: {
+                  'stock.availableQuantity': item.quantity,
+                  'stock.reservedQuantity': item.quantity * -1,
+                },
+              },
+              { session }
+            );
+          })
+        );
+
+        order.status = OrderStatus.CANCELLED;
+
+        await order.save({ session });
+
+        return order.toObject();
+      },
+      {
+        exchange: Exchange.OrderCancelled,
+        routingKey: `${order.shippingAddress.country}.${order.shippingAddress.state}.${order.shippingAddress.city}.${order.shippingAddress.zip}.${order.type}`,
+      }
+    );
+
+    return result;
+  }
+
   async addShippingAddress(
     { shippingAddress }: AddShippingAddressBody,
-    userId: string,
-    orderId: string
+    orderId: string,
+    userId?: string
   ) {
     const order = await this.orderModel.findById(orderId);
 
-    if (!order || order.customerId !== userId) {
+    if (!order || (userId && order.customerId !== userId)) {
       throw new HttpException(
         `Order with id ${orderId} not found.`,
         HttpStatus.NOT_FOUND
@@ -144,10 +193,10 @@ export class OrderService {
     return updatedOrder.toObject();
   }
 
-  async addItem(dto: AddItemBody, userId: string, orderId: string) {
+  async addItem(dto: AddItemBody, orderId: string, userId?: string) {
     const order = await this.orderModel.findById(orderId);
 
-    if (!order || order.customerId !== userId) {
+    if (!order || (userId && order.customerId !== userId)) {
       throw new HttpException(
         `Order with id ${orderId} not found.`,
         HttpStatus.NOT_FOUND
@@ -234,10 +283,10 @@ export class OrderService {
     return updatedOrder;
   }
 
-  async removeItem(dto: RemoveItemBody, userId: string, orderId: string) {
+  async removeItem(dto: RemoveItemBody, orderId: string, userId?: string) {
     const order = await this.orderModel.findById(orderId);
 
-    if (!order || order.customerId !== userId) {
+    if (!order || (userId && order.customerId !== userId)) {
       throw new HttpException(
         `Order with id ${orderId} not found.`,
         HttpStatus.NOT_FOUND
@@ -304,10 +353,10 @@ export class OrderService {
     return updatedOrder;
   }
 
-  async updateItem(dto: UpdateItemBody, userId: string, orderId: string) {
+  async updateItem(dto: UpdateItemBody, orderId: string, userId?: string) {
     const order = await this.orderModel.findById(orderId);
 
-    if (!order || order.customerId !== userId) {
+    if (!order || (userId && order.customerId !== userId)) {
       throw new HttpException(
         `Order with id ${orderId} not found.`,
         HttpStatus.NOT_FOUND
@@ -393,10 +442,10 @@ export class OrderService {
     return updatedOrder;
   }
 
-  async placeOrder(dto: PlaceOrderBody, userId: string, orderId: string) {
+  async placeOrder(dto: PlaceOrderBody, orderId: string, userId?: string) {
     const order = await this.orderModel.findById(orderId);
 
-    if (!order || order.customerId !== userId) {
+    if (!order || (userId && order.customerId !== userId)) {
       throw new HttpException(
         `Order with id ${orderId} not found.`,
         HttpStatus.NOT_FOUND
