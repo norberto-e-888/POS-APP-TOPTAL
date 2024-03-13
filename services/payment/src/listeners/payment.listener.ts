@@ -121,11 +121,15 @@ export class PaymentListener {
         }
       );
 
-      await this.amqp.publish(Exchange.CHECKOUT_COMPLETED, 'usd', {
-        metadata: {
-          mongoId: event.order.id,
-        },
-      });
+      await this.amqp.publish(
+        Exchange.CHECKOUT_COMPLETED,
+        `usd.${OrderType.IN_STORE}`,
+        {
+          metadata: {
+            mongoId: event.order.id,
+          },
+        }
+      );
 
       console.log('STRIPE PAYMENT CHARGE: ', charge);
 

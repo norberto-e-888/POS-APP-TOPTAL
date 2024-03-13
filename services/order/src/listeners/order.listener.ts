@@ -1,6 +1,11 @@
 import { Nack, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { Injectable } from '@nestjs/common';
-import { CustomerAggregation, Order, OrderStatus } from '@pos-app/models';
+import {
+  CustomerAggregation,
+  Order,
+  OrderStatus,
+  OrderType,
+} from '@pos-app/models';
 import Stripe from 'stripe';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -19,11 +24,11 @@ export class OrderListener {
 
   @RabbitSubscribe({
     exchange: 'payment.checkout-completed',
-    routingKey: '#',
+    routingKey: `*.${OrderType.ONLINE}`,
     queue: `order.set-order-status.${OrderStatus.PROCESSING}`,
   })
   async handleSetOrderStatusProcessing(event: Stripe.Checkout.Session) {
-    console.log('ORDER.SET-ORDER-STATUS EVENT:', event);
+    console.log('ORDER.SET-ORDER-STATUS PROCESSING EVENT:', event);
 
     const order = await this.orderModel.findById(event.metadata.mongoId);
 
@@ -47,6 +52,42 @@ export class OrderListener {
 
     console.log(
       'SUCCESSFULLY UPDATED ORDER STATUS TO PROCESSING',
+      event.metadata.mongoId
+    );
+
+    return new Nack(false);
+  }
+
+  @RabbitSubscribe({
+    exchange: 'payment.checkout-completed',
+    routingKey: `*.${OrderType.IN_STORE}`,
+    queue: `order.set-order-status.${OrderStatus.DELIVERED}`,
+  })
+  async handleSetOrderStatusDelivered(event: Stripe.Checkout.Session) {
+    console.log('ORDER.SET-ORDER-STATUS DELIVERED EVENT:', event);
+
+    const order = await this.orderModel.findById(event.metadata.mongoId);
+
+    await this.outboxService.publish(
+      async (session) => {
+        const updatedOrder = await this.orderModel.findByIdAndUpdate(
+          event.metadata.mongoId,
+          {
+            status: OrderStatus.DELIVERED,
+          },
+          { session, new: true }
+        );
+
+        return updatedOrder.toObject();
+      },
+      {
+        exchange: Exchange.OrderProcessing,
+        routingKey: order.type,
+      }
+    );
+
+    console.log(
+      'SUCCESSFULLY UPDATED ORDER STATUS TO DELIVERED',
       event.metadata.mongoId
     );
 

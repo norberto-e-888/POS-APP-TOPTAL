@@ -15,6 +15,7 @@ import { ConfigService } from '@nestjs/config';
 import { Config } from '../config';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Exchange } from '../app/amqp';
+import { OrderType } from '@pos-app/models';
 
 @Controller()
 export class StripeController {
@@ -49,7 +50,7 @@ export class StripeController {
           console.log('CHECKOUT SESSION COMPLETED: ', checkoutSession);
           await this.amqp.publish(
             Exchange.CHECKOUT_COMPLETED,
-            checkoutSession.currency,
+            `${checkoutSession.currency}.${OrderType.ONLINE}`,
             checkoutSession
           );
           return 'Ok.';
