@@ -22,6 +22,11 @@ export class CustomerAggregationService {
       );
     }
 
-    return document.toObject();
+    const obj = document.toObject();
+
+    return {
+      ...obj,
+      productFrequency: Object.fromEntries(obj.productFrequency.entries()),
+    };
   }
 }
