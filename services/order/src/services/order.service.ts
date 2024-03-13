@@ -457,7 +457,7 @@ export class OrderService {
       order.status !== OrderStatus.FAILED_PAYMENT
     ) {
       throw new HttpException(
-        `Order with id ${orderId} is not in the drafting status.`,
+        `Order with id ${orderId} is not in the drafting or failed-payment status.`,
         HttpStatus.BAD_REQUEST
       );
     }
