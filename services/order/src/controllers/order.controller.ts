@@ -113,7 +113,7 @@ export class OrderController {
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description:
-      'Order or product not found / Item is already in order. / Product is not in order.',
+      'Order or product not found / Item is not in order. / Product not found.',
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -133,7 +133,7 @@ export class OrderController {
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description:
-      'Order or product not found / Item is already in order. / Product is not in order.',
+      'Order or product not found / Item is not the in order. / Product not found.',
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -152,8 +152,7 @@ export class OrderController {
 
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description:
-      'Order or product not found / Item is already in order. / Product is not in order.',
+    description: 'Order not found.',
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -188,7 +187,7 @@ export class OrderController {
   @ApiOkResponse({ type: Order })
   @Roles(['customer'])
   @Get('order/:id')
-  async handleGetOrder(
+  async handleFetchOrderById(
     @JWTPayload() jwtPayload: JWTPayload,
     @Param('id') id: string
   ) {
@@ -202,7 +201,7 @@ export class OrderController {
   @ApiOkResponse({ type: Order })
   @Roles(['admin'])
   @Post('admin/order')
-  async handleAdminOrder(@Body() body: CreateAdminOrderBody) {
+  async handleAdminCreateOrder(@Body() body: CreateAdminOrderBody) {
     const user = await this.amqpConnection.request<User>({
       exchange: 'auth.create-or-get-user',
       routingKey: '',
