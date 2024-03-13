@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -23,10 +24,11 @@ import {
 import { Authenticated, JWTPayload, Roles } from '@pos-app/auth';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Order, User } from '@pos-app/models';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-@UseGuards(Authenticated)
 @ApiTags(Order.name)
+@ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized.' })
+@UseGuards(Authenticated)
 @Controller()
 export class OrderController {
   constructor(
@@ -34,6 +36,11 @@ export class OrderController {
     private readonly amqpConnection: AmqpConnection
   ) {}
 
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Not enough stock for a give product/s.',
+  })
+  @ApiOkResponse({ type: Order })
   @Roles(['customer'])
   @Post('order')
   async handleOrder(
@@ -43,6 +50,15 @@ export class OrderController {
     return this.orderService.createOrder(body, jwtPayload.id);
   }
 
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Order not found.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Order is not in drafting status.',
+  })
+  @ApiOkResponse({ type: Order })
   @Roles(['admin', 'customer'])
   @Delete('order/:id/cancel')
   async handleCancelOrder(
@@ -52,6 +68,15 @@ export class OrderController {
     return this.orderService.cancelOrder(id, this.getUserId(jwtPayload));
   }
 
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Order not found.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Order is not in drafting status.',
+  })
+  @ApiOkResponse({ type: Order })
   @Roles(['customer', 'admin'])
   @Patch('order/:id/shipping-address')
   async handleAddShippingAddress(
@@ -66,6 +91,15 @@ export class OrderController {
     );
   }
 
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Order or product not found / Item is already in order.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Order is not in drafting status.',
+  })
+  @ApiOkResponse({ type: Order })
   @Roles(['customer', 'admin'])
   @Patch('order/:id/add-item')
   async handleAddItem(
@@ -76,6 +110,16 @@ export class OrderController {
     return this.orderService.addItem(body, id, this.getUserId(jwtPayload));
   }
 
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description:
+      'Order or product not found / Item is already in order. / Product is not in order.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Order is not in drafting status.',
+  })
+  @ApiOkResponse({ type: Order })
   @Roles(['customer', 'admin'])
   @Patch('order/:id/remove-item')
   async handleRemoveItem(
@@ -86,6 +130,16 @@ export class OrderController {
     return this.orderService.removeItem(body, id, this.getUserId(jwtPayload));
   }
 
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description:
+      'Order or product not found / Item is already in order. / Product is not in order.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Order is not in drafting status.',
+  })
+  @ApiOkResponse({ type: Order })
   @Roles(['customer', 'admin'])
   @Patch('order/:id/update-item')
   async handleUpdateItem(
@@ -96,6 +150,17 @@ export class OrderController {
     return this.orderService.updateItem(body, id, this.getUserId(jwtPayload));
   }
 
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description:
+      'Order or product not found / Item is already in order. / Product is not in order.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description:
+      'Order is not in drafting or failed-payment status./ Order does not have shipping address.',
+  })
+  @ApiOkResponse({ type: Order })
   @Roles(['customer', 'admin'])
   @Post('order/:id/place')
   async handlePlaceOrder(
@@ -106,6 +171,7 @@ export class OrderController {
     return this.orderService.placeOrder(body, id, this.getUserId(jwtPayload));
   }
 
+  @ApiOkResponse({ type: [Order] })
   @Roles(['customer'])
   @Get('order')
   async handleGetOrders(
@@ -115,6 +181,11 @@ export class OrderController {
     return this.orderService.queryOrders(query, jwtPayload.id);
   }
 
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Order not found.',
+  })
+  @ApiOkResponse({ type: Order })
   @Roles(['customer'])
   @Get('order/:id')
   async handleGetOrder(
@@ -124,6 +195,11 @@ export class OrderController {
     return this.orderService.fetchOrderById(id, jwtPayload.id);
   }
 
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Not enough stock for a give product/s.',
+  })
+  @ApiOkResponse({ type: Order })
   @Roles(['admin'])
   @Post('admin/order')
   async handleAdminOrder(@Body() body: CreateAdminOrderBody) {
@@ -138,12 +214,18 @@ export class OrderController {
     return this.orderService.createOrder(body, user.id, true);
   }
 
+  @ApiOkResponse({ type: [Order] })
   @Roles(['admin'])
   @Get('admin/order')
   async handleAdminGetOrders(@Query() query: OrdersQuery) {
     return this.orderService.queryOrders(query);
   }
 
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Order not found.',
+  })
+  @ApiOkResponse({ type: Order })
   @Roles(['admin'])
   @Get('admin/order/:id')
   async handleAdminGetOrder(@Param('id') id: string) {

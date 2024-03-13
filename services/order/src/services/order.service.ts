@@ -318,7 +318,7 @@ export class OrderService {
     if (!item) {
       throw new HttpException(
         `Product with id ${productId} is not in the order.`,
-        HttpStatus.BAD_REQUEST
+        HttpStatus.NOT_FOUND
       );
     }
 
@@ -388,7 +388,7 @@ export class OrderService {
     if (!item) {
       throw new HttpException(
         `Product with id ${productId} is not in the order.`,
-        HttpStatus.BAD_REQUEST
+        HttpStatus.NOT_FOUND
       );
     }
 

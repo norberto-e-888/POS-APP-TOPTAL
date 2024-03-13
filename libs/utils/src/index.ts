@@ -9,6 +9,7 @@ import { Coordinates, Pagination } from '@pos-app/validators';
 import { TransformFnParams } from 'class-transformer';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { Schema as _Schema } from 'mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({
   _id: false,
@@ -29,8 +30,13 @@ export class Point {
 }
 
 export class BaseModel {
+  @ApiProperty()
   id!: string;
+
+  @ApiProperty({ type: Date })
   createdAt!: Date;
+
+  @ApiProperty({ type: Date })
   updatedAt!: Date;
 }
 
