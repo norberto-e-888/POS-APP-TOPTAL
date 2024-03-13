@@ -77,6 +77,7 @@ export class StripeController {
           );
           return 'Ok.';
 
+        case 'payment_intent.payment_failed':
         case 'charge.failed':
           const failedCharge = event.data.object;
           console.log('CHARGE FAILED: ', failedCharge);
