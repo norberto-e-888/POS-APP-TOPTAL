@@ -58,7 +58,7 @@ export class StripeController {
         case 'checkout.session.expired':
         case 'checkout.session.async_payment_failed':
           const failedSession = event.data.object;
-          console.log('CHARGE FAILED: ', failedSession);
+          console.log('CHECKOUT SESSION FAILED: ', failedSession);
           await this.amqp.publish(
             Exchange.CHECKOUT_FALIED,
             `${failedSession.currency}.${OrderType.ONLINE}`,
@@ -67,12 +67,12 @@ export class StripeController {
           return 'Ok.';
 
         case 'charge.failed':
-          const chargeFailed = event.data.object;
-          console.log('CHARGE FAILED: ', chargeFailed);
+          const failedChage = event.data.object;
+          console.log('CHARGE FAILED: ', failedChage);
           await this.amqp.publish(
             Exchange.CHECKOUT_FALIED,
-            `${chargeFailed.currency}.${OrderType.ONLINE}`,
-            chargeFailed
+            `${failedChage.currency}.${OrderType.ONLINE}`,
+            failedChage
           );
           return 'Ok.';
 
