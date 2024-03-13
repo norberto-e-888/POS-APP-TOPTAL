@@ -538,7 +538,16 @@ export class OrderService {
   async queryOrders(query: OrdersQuery, userId?: string) {
     const { pagination } = query;
     const { page, size } = defaultPagination(pagination);
-    const filter = userId ? { customerId: userId } : {};
+    const filter: Pick<OrdersQuery, 'status'> & { customerId?: string } = {};
+
+    if (query.status) {
+      filter.status = query.status;
+    }
+
+    if (userId) {
+      filter.customerId = userId;
+    }
+
     const sortField = query.sortByField || 'createdAt';
     const sortOrder = query.sortOrder || 'desc';
     const sort = { [sortField]: sortOrder };

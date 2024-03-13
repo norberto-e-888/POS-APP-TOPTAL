@@ -16,7 +16,7 @@ import {
 import { Transform, Type } from 'class-transformer';
 import { toInt, trim } from '@pos-app/utils';
 import { Pagination } from '@pos-app/validators';
-import { ProductCategory } from '@pos-app/models';
+import { OrderStatus, ProductCategory } from '@pos-app/models';
 
 class ShippingAddress {
   @Transform(trim)
@@ -132,6 +132,12 @@ export class OrdersQuery {
   @Type(() => Pagination)
   @IsOptional()
   pagination?: Pagination;
+
+  @IsEnum(OrderStatus)
+  @Transform(trim)
+  @IsString()
+  @IsOptional()
+  status?: OrderStatus;
 
   @Transform(trim)
   @IsString()
