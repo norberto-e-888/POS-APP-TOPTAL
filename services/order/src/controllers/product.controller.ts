@@ -15,7 +15,7 @@ import {
   CreateProductBody,
   ProductsQuery,
 } from '../validators';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Product } from '@pos-app/models';
 
 @UseGuards(Authenticated)
@@ -24,12 +24,14 @@ import { Product } from '@pos-app/models';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
+  @ApiOkResponse({ type: Product })
   @Roles(['admin'])
   @Post()
   async handleCreateProduct(@Body() body: CreateProductBody) {
     return this.productService.createProduct(body);
   }
 
+  @ApiOkResponse({ type: Product })
   @Roles(['admin'])
   @Patch(':id/add-stock')
   async handleAddStock(
@@ -39,6 +41,7 @@ export class ProductController {
     return this.productService.addStock(body, id);
   }
 
+  @ApiOkResponse({ type: [Product] })
   @Roles(['admin', 'customer'])
   @Get()
   async handleQueryProducts(@Query() query: ProductsQuery) {

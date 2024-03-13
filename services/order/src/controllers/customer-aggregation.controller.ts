@@ -1,8 +1,8 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Param, UseGuards } from '@nestjs/common';
 import { CustomerAggregationService } from '../services/customer-aggregation.service';
 import { Authenticated, JWTPayload, Roles } from '@pos-app/auth';
 import { CustomerAggregation } from '@pos-app/models';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @UseGuards(Authenticated)
 @ApiTags(CustomerAggregation.name)
@@ -12,6 +12,11 @@ export class CustomerAggregationController {
     private readonly customerAggregationService: CustomerAggregationService
   ) {}
 
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Customer aggregation not found.',
+  })
+  @ApiOkResponse({ type: CustomerAggregation })
   @Roles(['admin'])
   @Get('customer-aggregation/:customerId')
   async handleFetchCustomerAggregationById(
@@ -23,6 +28,11 @@ export class CustomerAggregationController {
     );
   }
 
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Customer aggregation not found.',
+  })
+  @ApiOkResponse({ type: CustomerAggregation })
   @Roles(['customer'])
   @Get('my-aggregation')
   async handleFetchMyAggregation(@JWTPayload() payload: JWTPayload) {
