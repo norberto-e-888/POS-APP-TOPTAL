@@ -14,6 +14,7 @@ import {
   Product,
   ProductStock,
 } from '@pos-app/models';
+import { OrdersQuery, ProductsQuery } from './validators';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -34,6 +35,8 @@ async function bootstrap() {
       ProductStock,
       OrderItem,
       OrderShippingAddress,
+      ProductsQuery,
+      OrdersQuery,
     ],
   });
 
