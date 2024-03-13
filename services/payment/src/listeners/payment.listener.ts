@@ -7,7 +7,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Order, OrderType, Product } from '@pos-app/models';
 import { STRIPE } from '../lib';
 import Stripe from 'stripe';
-import { Exchange } from '../app/amqp';
 
 @Injectable()
 export class PaymentListener {
@@ -109,46 +108,22 @@ export class PaymentListener {
         return new Nack(false);
       }
 
-      try {
-        const charge = await this.stripe.charges.create(
-          {
-            amount: event.order.total,
-            currency: 'usd',
-            source: 'tok_visa',
-            description: `In-store order payment for order: ${event.order.id}`,
-            metadata: {
-              mongoId: event.order.id,
-            },
+      const charge = await this.stripe.charges.create(
+        {
+          amount: event.order.total,
+          currency: 'usd',
+          source: 'tok_visa',
+          description: `In-store order payment for order: ${event.order.id}`,
+          metadata: {
+            mongoId: event.order.id,
           },
-          {
-            idempotencyKey: event.order.id,
-          }
-        );
+        },
+        {
+          idempotencyKey: event.order.id,
+        }
+      );
 
-        await this.amqp.publish(
-          Exchange.CHECKOUT_COMPLETED,
-          `usd.${OrderType.IN_STORE}`,
-          {
-            metadata: {
-              mongoId: event.order.id,
-            },
-          }
-        );
-
-        console.log('STRIPE PAYMENT CHARGE: ', charge);
-      } catch (error) {
-        await this.amqp.publish(
-          Exchange.CHECKOUT_FALIED,
-          `usd.${OrderType.IN_STORE}`,
-          {
-            metadata: {
-              mongoId: event.order.id,
-            },
-          }
-        );
-
-        console.log('CHECKOUT FAILED: ', error);
-      }
+      console.log('STRIPE PAYMENT CHARGE: ', charge);
 
       return new Nack(false);
     } catch (error) {

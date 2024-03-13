@@ -66,13 +66,23 @@ export class StripeController {
           );
           return 'Ok.';
 
+        case 'charge.captured':
+          const charge = event.data.object;
+          console.log('CHARGE CAPTURED: ', charge);
+          await this.amqp.publish(
+            Exchange.CHECKOUT_COMPLETED,
+            `${charge.currency}.${OrderType.IN_STORE}`,
+            charge
+          );
+          return 'Ok.';
+
         case 'charge.failed':
-          const failedChage = event.data.object;
-          console.log('CHARGE FAILED: ', failedChage);
+          const failedCharge = event.data.object;
+          console.log('CHARGE FAILED: ', failedCharge);
           await this.amqp.publish(
             Exchange.CHECKOUT_FALIED,
-            `${failedChage.currency}.${OrderType.ONLINE}`,
-            failedChage
+            `${failedCharge.currency}.${OrderType.IN_STORE}`,
+            failedCharge
           );
           return 'Ok.';
 
