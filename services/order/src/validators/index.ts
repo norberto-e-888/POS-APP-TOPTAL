@@ -16,7 +16,7 @@ import {
 import { Transform, Type } from 'class-transformer';
 import { toInt, trim } from '@pos-app/utils';
 import { Pagination } from '@pos-app/validators';
-import { OrderStatus, ProductCategory } from '@pos-app/models';
+import { OrderStatus, OrderType, ProductCategory } from '@pos-app/models';
 import { ApiProperty } from '@nestjs/swagger';
 
 class ShippingAddress {
@@ -62,7 +62,7 @@ export class OrderItemValidator {
 }
 
 export class CreateOrderBody {
-  @ApiProperty({ type: ShippingAddress })
+  @ApiProperty({ type: ShippingAddress, required: false })
   @IsObject()
   @ValidateNested()
   @Type(() => ShippingAddress)
@@ -78,7 +78,7 @@ export class CreateOrderBody {
 }
 
 export class CreateAdminOrderBody {
-  @ApiProperty({ type: ShippingAddress })
+  @ApiProperty({ type: ShippingAddress, required: false })
   @IsObject()
   @ValidateNested()
   @Type(() => ShippingAddress)
@@ -138,34 +138,41 @@ export class UpdateItemBody {
 }
 
 export class PlaceOrderBody {
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsBoolean()
   @IsOptional()
   overrideIdempotency?: boolean;
 }
 
 export class OrdersQuery {
-  @ApiProperty({ type: Pagination })
+  @ApiProperty({ type: Pagination, required: false })
   @IsObject()
   @ValidateNested()
   @Type(() => Pagination)
   @IsOptional()
   pagination?: Pagination;
 
-  @ApiProperty({ enum: Object.values(OrderStatus) })
+  @ApiProperty({ enum: Object.values(OrderStatus), required: false })
   @IsEnum(OrderStatus)
   @Transform(trim)
   @IsString()
   @IsOptional()
   status?: OrderStatus;
 
-  @ApiProperty({ enum: ['createdAt'] })
+  @ApiProperty({ enum: Object.values(OrderType), required: false })
+  @IsEnum(OrderType)
+  @Transform(trim)
+  @IsString()
+  @IsOptional()
+  type?: OrderType;
+
+  @ApiProperty({ enum: ['createdAt', 'total'], required: false })
   @Transform(trim)
   @IsString()
   @IsOptional()
   sortByField?: string;
 
-  @ApiProperty({ enum: ['asc', 'desc'] })
+  @ApiProperty({ enum: ['asc', 'desc'], required: false })
   @Transform(trim)
   @IsString()
   @IsOptional()
@@ -204,26 +211,26 @@ export class AddProductStockBody {
 }
 
 export class ProductsQuery {
-  @ApiProperty({ type: Pagination })
+  @ApiProperty({ type: Pagination, required: false })
   @IsObject()
   @ValidateNested()
   @Type(() => Pagination)
   @IsOptional()
   pagination?: Pagination;
 
-  @ApiProperty({ enum: ['createdAt'] })
+  @ApiProperty({ enum: ['createdAt', 'price'], required: false })
   @Transform(trim)
   @IsString()
   @IsOptional()
   sortByField?: string;
 
-  @ApiProperty({ enum: ['asc', 'desc'] })
+  @ApiProperty({ enum: ['asc', 'desc'], required: false })
   @Transform(trim)
   @IsString()
   @IsOptional()
   sortOrder?: 'asc' | 'desc';
 
-  @ApiProperty({ enum: Object.values(ProductCategory) })
+  @ApiProperty({ enum: Object.values(ProductCategory), required: false })
   @IsEnum(ProductCategory)
   @Transform(trim)
   @IsString()

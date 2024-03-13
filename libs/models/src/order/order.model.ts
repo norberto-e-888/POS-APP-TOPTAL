@@ -41,10 +41,11 @@ export class Order extends BaseModel {
   @ApiProperty()
   @Prop({
     required: true,
+    index: true,
   })
   customerId!: string;
 
-  @ApiProperty({ type: OrderShippingAddress })
+  @ApiProperty({ type: OrderShippingAddress, required: false })
   @Prop({
     required: function (this: Order) {
       return this.status !== OrderStatus.DRAFTING;
@@ -59,6 +60,7 @@ export class Order extends BaseModel {
     enum: Object.values(OrderStatus),
     type: String,
     default: OrderStatus.DRAFTING,
+    index: true,
   })
   status!: OrderStatus;
 
@@ -73,6 +75,7 @@ export class Order extends BaseModel {
   @ApiProperty({ minimum: 0.01 })
   @Prop({
     min: 0.01,
+    index: true,
   })
   total!: number;
 
@@ -81,6 +84,7 @@ export class Order extends BaseModel {
     required: true,
     enum: Object.values(OrderType),
     type: String,
+    index: true,
   })
   type!: OrderType;
 

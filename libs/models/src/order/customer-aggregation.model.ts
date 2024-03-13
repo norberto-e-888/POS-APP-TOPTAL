@@ -20,6 +20,7 @@ export class CustomerAggregation extends BaseModel {
   @Prop({
     default: 0,
     required: true,
+    index: true,
   })
   totalAmount!: number;
 
@@ -27,6 +28,7 @@ export class CustomerAggregation extends BaseModel {
   @Prop({
     default: 0,
     required: true,
+    index: true,
   })
   averageAmount!: number;
 

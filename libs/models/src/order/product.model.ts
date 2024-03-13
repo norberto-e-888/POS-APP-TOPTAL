@@ -36,6 +36,7 @@ export class Product extends BaseModel {
     required: true,
     min: 1,
     isInteger: true,
+    index: true,
   })
   price!: number;
 
@@ -44,6 +45,7 @@ export class Product extends BaseModel {
     required: true,
     enum: Object.values(ProductCategory),
     type: String,
+    index: true,
   })
   category!: ProductCategory;
 
