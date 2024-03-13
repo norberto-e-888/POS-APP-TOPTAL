@@ -4,34 +4,37 @@ import { schemaOptions, BaseModel } from '@pos-app/utils';
 
 export const CUSTOMER_AGGREGATION_MODEL_COLLECTION = 'customer_aggregations';
 
-@Schema(schemaOptions(CUSTOMER_AGGREGATION_MODEL_COLLECTION))
+@Schema(
+  schemaOptions<CustomerAggregation>(CUSTOMER_AGGREGATION_MODEL_COLLECTION)
+)
 export class CustomerAggregation extends BaseModel {
   @Prop({
     default: 0,
+    required: true,
   })
   numberOfPayments!: number;
 
   @Prop({
     default: 0,
+    required: true,
   })
   totalAmount!: number;
 
   @Prop({
     default: 0,
-    set: function (this: CustomerAggregation) {
-      return this.totalAmount / this.numberOfPayments;
-    },
+    required: true,
   })
   averageAmount!: number;
 
   @Prop({
-    type: Object,
-    default: {},
+    type: Map,
+    of: Number,
   })
-  productFrequency!: Record<string, number>;
+  productFrequency!: Map<string, number>;
 
   @Prop({
     required: true,
+    unique: true,
   })
   customerId!: string;
 }

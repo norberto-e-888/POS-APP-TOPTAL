@@ -13,7 +13,7 @@ export class OrderListener {
     @InjectModel(Order.name)
     private readonly orderModel: Model<Order>,
     @InjectModel(CustomerAggregation.name)
-    private readonly customerAggreagtionModel: Model<CustomerAggregation>,
+    private readonly customerAggregationModel: Model<CustomerAggregation>,
     private readonly outboxService: OutboxService
   ) {}
 
@@ -29,13 +29,15 @@ export class OrderListener {
 
     await this.outboxService.publish(
       async (session) => {
-        await this.orderModel.findByIdAndUpdate(
+        const updatedOrder = await this.orderModel.findByIdAndUpdate(
           event.metadata.mongoId,
           {
             status: OrderStatus.PROCESSING,
           },
           { session, new: true }
         );
+
+        return updatedOrder.toObject();
       },
       {
         exchange: Exchange.OrderProcessing,
@@ -61,38 +63,63 @@ export class OrderListener {
       mongoId: string;
     };
   }) {
-    console.log('ORDER.UPDATE-CUSTOMER-AGGREGATION EVENT:', event);
+    try {
+      console.log('ORDER.UPDATE-CUSTOMER-AGGREGATION EVENT:', event);
 
-    const order = await this.orderModel.findById(event.metadata.mongoId);
+      const order = await this.orderModel.findById(event.metadata.mongoId);
 
-    const customerAggregation = await this.customerAggreagtionModel.findById({
-      customerId: order.customerId,
-    });
-
-    if (!customerAggregation) {
-      await this.customerAggreagtionModel.create({
+      const customerAggregation = await this.customerAggregationModel.findOne({
         customerId: order.customerId,
-        numberOfPayments: 1,
-        totalAmount: order.total,
-        productFrequency: this.updateProductFrequency(order),
       });
+
+      console.log('ORDER', order);
+
+      if (!customerAggregation) {
+        console.log('CREATING NEW CUSTOMER AGGREGATION');
+        await this.customerAggregationModel.create({
+          numberOfPayments: 1,
+          totalAmount: order.total,
+          averageAmount: order.total,
+          productFrequency: this.updateProductFrequency(order),
+          customerId: order.customerId,
+        });
+
+        return new Nack(false);
+      }
+
+      customerAggregation.numberOfPayments += 1;
+      customerAggregation.totalAmount += order.total;
+      customerAggregation.averageAmount =
+        customerAggregation.totalAmount / customerAggregation.numberOfPayments;
+
+      customerAggregation.productFrequency = this.updateProductFrequency(
+        order,
+        customerAggregation.productFrequency
+      );
+
+      const doc = await customerAggregation.save();
+      console.log('UPDATED CUSTOMER AGGREGATION', doc.toObject());
+      return new Nack(false);
+    } catch (error) {
+      console.log('ERROR WITH ORDER.UPDATE-CUSTOMER-AGGREGATION', error);
       return new Nack(false);
     }
-
-    customerAggregation.numberOfPayments += 1;
-    customerAggregation.totalAmount += order.total;
-    customerAggregation.productFrequency = this.updateProductFrequency(order);
   }
 
-  private updateProductFrequency(order: Order) {
+  private updateProductFrequency(
+    order: Order,
+    defaultProductFrequency = new Map()
+  ) {
     const productFrequency = order.items.reduce((acc, item) => {
-      if (acc[item.productId.toString()]) {
-        acc[item.productId.toString()] += 1;
+      const productId = item.productId.toString();
+      if (acc.has(productId)) {
+        acc.set(productId, acc.get(productId) + item.quantity);
       } else {
-        acc[item.productId.toString()] = 1;
+        acc.set(productId, item.quantity);
       }
+
       return acc;
-    }, {});
+    }, defaultProductFrequency);
 
     return productFrequency;
   }
