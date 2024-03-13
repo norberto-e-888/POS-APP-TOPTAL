@@ -137,7 +137,6 @@ export class OrderService {
               { _id: item.productId },
               {
                 $inc: {
-                  'stock.availableQuantity': item.quantity,
                   'stock.reservedQuantity': item.quantity * -1,
                 },
               },

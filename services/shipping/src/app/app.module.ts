@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { config } from '../config';
+import { AmqpModule } from './amqp';
+import { ShippingListener } from '../listeners';
 
 @Module({
   imports: [
@@ -8,8 +10,8 @@ import { config } from '../config';
       isGlobal: true,
       load: [config],
     }),
+    AmqpModule,
   ],
-  providers: [],
-  controllers: [],
+  providers: [ShippingListener],
 })
 export class AppModule {}
