@@ -90,6 +90,13 @@ export class AuthService {
       throw new HttpException('Invalid credentials', HttpStatus.BAD_REQUEST);
     }
 
+    if (!user.password) {
+      throw new HttpException(
+        "You are already in our database as an unregistered user, please click on 'Claim Account' to set a password.",
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
     const isPasswordValid = await this.bcrypt.compare(
       dto.password,
       user.password
