@@ -540,7 +540,7 @@ export class OrderService {
   async queryOrders(query: OrdersQuery, userId?: string) {
     const { pagination } = query;
     const { page, size } = defaultPagination(pagination);
-    const filter: Pick<OrdersQuery, 'status' | 'type'> & {
+    const filter: Pick<OrdersQuery, 'status' | 'type' | 'customerId'> & {
       customerId?: string;
     } = {};
 
@@ -550,6 +550,10 @@ export class OrderService {
 
     if (query.type) {
       filter.type = query.type;
+    }
+
+    if (query.customerId) {
+      filter.customerId = query.customerId;
     }
 
     if (userId) {

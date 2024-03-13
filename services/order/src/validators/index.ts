@@ -178,6 +178,13 @@ export class OrdersQuery {
   @IsString()
   @IsOptional()
   sortOrder?: 'asc' | 'desc';
+
+  @ApiProperty({ required: false })
+  @Transform(trim)
+  @IsMongoId()
+  @IsString()
+  @IsOptional()
+  customerId?: string;
 }
 
 export class CreateProductBody {

@@ -99,11 +99,13 @@ export class PaymentListener {
     try {
       console.log('PAYMENT.CHARGE-IN-STORE-ORDER EVENT:', event);
 
-      const result = await this.stripe.customers.search({
+      const {
+        data: [customer],
+      } = await this.stripe.customers.search({
         query: `metadata["mongoId"]:"${event.order.customerId}"`,
       });
 
-      if (!result.data.length) {
+      if (!customer) {
         console.log('No customer found with mongoId: ', event.order.customerId);
         return new Nack(false);
       }
@@ -111,34 +113,29 @@ export class PaymentListener {
       let {
         data: [card],
       } = await this.stripe.paymentMethods.list({
-        customer: result.data[0].id,
+        customer: customer.id,
       });
 
       if (!card) {
         console.log(
           'No card found for customer: ',
-          result.data[0].id,
+          customer.id,
           'Creating new card...'
         );
-        card = await this.stripe.paymentMethods.create({
-          type: 'card',
-          card: {
-            number: '4242424242424242',
-            exp_month: 4,
-            exp_year: 2024,
-            cvc: '424',
-          },
-          customer: result.data[0].id,
+
+        card = await this.stripe.paymentMethods.attach('pm_card_visa', {
+          customer: customer.id,
         });
       }
 
-      const charge = await this.stripe.charges.create(
+      const paymentIntent = await this.stripe.paymentIntents.create(
         {
           amount: event.order.total,
           currency: 'usd',
-          source: card.id,
-          description: `In-store order payment for order: ${event.order.id}`,
-          customer: result.data[0].id,
+          customer: customer.id,
+          payment_method: card.id,
+          off_session: true,
+          confirm: true,
           metadata: {
             mongoId: event.order.id,
           },
@@ -148,7 +145,7 @@ export class PaymentListener {
         }
       );
 
-      console.log('STRIPE PAYMENT CHARGE: ', charge);
+      console.log('STRIPE PAYMENT INTENT: ', paymentIntent);
 
       return new Nack(false);
     } catch (error) {

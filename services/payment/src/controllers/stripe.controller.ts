@@ -66,6 +66,7 @@ export class StripeController {
           );
           return 'Ok.';
 
+        case 'charge.succeeded':
         case 'charge.captured':
           const charge = event.data.object;
           console.log('CHARGE CAPTURED: ', charge);
@@ -96,12 +97,6 @@ export class StripeController {
           const paymentIntentSucceeded = event.data.object;
           console.log('PAYMENT INTENT SUCCEEDED: ', paymentIntentSucceeded);
           // Then define and call a function to handle the event payment_intent.succeeded
-          return 'Ok.';
-
-        case 'charge.succeeded':
-          const chargeSucceeded = event.data.object;
-          console.log('CHARGE SUCCEEDED: ', chargeSucceeded);
-          // Then define and call a function to handle the event charge.succeeded
           return 'Ok.';
 
         default:

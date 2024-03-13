@@ -15,6 +15,7 @@ export const config = () => ({
     publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
     secret: process.env.STRIPE_SECRET,
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+    accountId: process.env.STRIPE_ACCOUNT_ID,
   },
   misc: {
     port: parseInt(process.env.PORT, 10),

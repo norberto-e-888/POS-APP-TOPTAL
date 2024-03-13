@@ -8,6 +8,11 @@ export const STRIPE = Symbol('STRIPE');
 export const StripeProvider: Provider = {
   provide: STRIPE,
   inject: [ConfigService],
-  useFactory: (config: ConfigService<Config>) =>
-    new Stripe(config.get<Config['stripe']>('stripe').secret),
+  useFactory: (config: ConfigService<Config>) => {
+    const { secret, accountId } = config.get<Config['stripe']>('stripe');
+
+    return new Stripe(secret, {
+      stripeAccount: accountId,
+    });
+  },
 };
