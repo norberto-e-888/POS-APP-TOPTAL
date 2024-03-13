@@ -156,11 +156,11 @@ export class AuthService {
       });
     }
 
-    await this.userModel.findByIdAndUpdate(user.id, {
+    const updatedUser = await this.userModel.findByIdAndUpdate(user.id, {
       stripeId: customer.id,
     });
 
-    return user.toObject();
+    return updatedUser.toObject();
   }
 
   @RabbitSubscribe({
