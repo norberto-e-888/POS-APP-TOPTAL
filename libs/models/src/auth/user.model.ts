@@ -16,7 +16,7 @@ export enum CustomerStatus {
 
 @Schema(
   schemaOptions<User>(USER_MODEL_COLLECTION, {
-    omitFromTransform: ['password'],
+    omitFromTransform: ['password', 'stripeId'],
   })
 )
 export class User extends BaseModel {
