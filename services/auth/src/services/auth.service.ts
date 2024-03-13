@@ -201,11 +201,11 @@ export class AuthService {
     }
   }
 
-  private signJwt(user: HydratedDocument<User>) {
+  private signJwt({ id, roles }: HydratedDocument<User>) {
     const jwtSecret = this.configService.get<Config['jwt']>('jwt').secret;
     const payload: JWTPayload = {
-      id: user.id,
-      roles: user.roles,
+      id,
+      roles,
     };
 
     return this.jwt.sign(payload, jwtSecret, {
