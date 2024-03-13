@@ -54,11 +54,34 @@ export class StripeController {
             checkoutSession
           );
           return 'Ok.';
+
+        case 'checkout.session.expired':
+        case 'checkout.session.async_payment_failed':
+          const failedSession = event.data.object;
+          console.log('CHARGE FAILED: ', failedSession);
+          await this.amqp.publish(
+            Exchange.CHECKOUT_FALIED,
+            `${failedSession.currency}.${OrderType.ONLINE}`,
+            failedSession
+          );
+          return 'Ok.';
+
+        case 'charge.failed':
+          const chargeFailed = event.data.object;
+          console.log('CHARGE FAILED: ', chargeFailed);
+          await this.amqp.publish(
+            Exchange.CHECKOUT_FALIED,
+            `${chargeFailed.currency}.${OrderType.ONLINE}`,
+            chargeFailed
+          );
+          return 'Ok.';
+
         case 'payment_intent.created':
           const paymentIntentCreated = event.data.object;
           console.log('PAYMENT INTENT CREATED: ', paymentIntentCreated);
           // Then define and call a function to handle the event payment_intent.created
           return 'Ok.';
+
         case 'payment_intent.succeeded':
           const paymentIntentSucceeded = event.data.object;
           console.log('PAYMENT INTENT SUCCEEDED: ', paymentIntentSucceeded);
@@ -70,6 +93,7 @@ export class StripeController {
           console.log('CHARGE SUCCEEDED: ', chargeSucceeded);
           // Then define and call a function to handle the event charge.succeeded
           return 'Ok.';
+
         default:
           console.log(`Unhandled event type ${event.type}`);
           return 'Ok.';

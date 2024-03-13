@@ -8,6 +8,8 @@ export enum Exchange {
   OrderCancelled = 'order.cancelled',
   OrderPlaced = 'order.placed',
   OrderProcessing = 'order.processing',
+  OrderInStoreCompleted = 'order.in-store-completed',
+  OrderPaymentFailed = 'order.payment-failed',
 }
 
 @Global()

@@ -5,6 +5,7 @@ import { Config } from '../config';
 
 export enum Exchange {
   CHECKOUT_COMPLETED = 'payment.checkout-completed',
+  CHECKOUT_FALIED = 'payment.checkout-failed',
 }
 
 @Global()

@@ -61,10 +61,10 @@ export class OrderListener {
   @RabbitSubscribe({
     exchange: 'payment.checkout-completed',
     routingKey: `*.${OrderType.IN_STORE}`,
-    queue: `order.set-order-status.${OrderStatus.DELIVERED}`,
+    queue: `order.set-order-status.${OrderStatus.IN_STORE_COMPLETED}`,
   })
-  async handleSetOrderStatusDelivered(event: Stripe.Checkout.Session) {
-    console.log('ORDER.SET-ORDER-STATUS DELIVERED EVENT:', event);
+  async handleSetOrderStatusInStoreCompleted(event: Stripe.Charge) {
+    console.log('ORDER.SET-ORDER-STATUS IN_STORE_COMPLETED EVENT:', event);
 
     const order = await this.orderModel.findById(event.metadata.mongoId);
 
@@ -73,7 +73,7 @@ export class OrderListener {
         const updatedOrder = await this.orderModel.findByIdAndUpdate(
           event.metadata.mongoId,
           {
-            status: OrderStatus.DELIVERED,
+            status: OrderStatus.IN_STORE_COMPLETED,
           },
           { session, new: true }
         );
@@ -81,13 +81,51 @@ export class OrderListener {
         return updatedOrder.toObject();
       },
       {
-        exchange: Exchange.OrderProcessing,
+        exchange: Exchange.OrderInStoreCompleted,
         routingKey: order.type,
       }
     );
 
     console.log(
-      'SUCCESSFULLY UPDATED ORDER STATUS TO DELIVERED',
+      'SUCCESSFULLY UPDATED ORDER STATUS TO IN_STORE_COMPLETED',
+      event.metadata.mongoId
+    );
+
+    return new Nack(false);
+  }
+
+  @RabbitSubscribe({
+    exchange: 'payment.checkout-failed',
+    routingKey: '#',
+    queue: `order.set-order-status.${OrderStatus.FAILED_PAYMENT}`,
+  })
+  async handleSetOrderStatusFailedPayment(
+    event: Stripe.Checkout.Session | Stripe.Charge
+  ) {
+    console.log('ORDER.SET-ORDER-STATUS FAILED PAYMENT EVENT:', event);
+
+    const order = await this.orderModel.findById(event.metadata.mongoId);
+
+    await this.outboxService.publish(
+      async (session) => {
+        const updatedOrder = await this.orderModel.findByIdAndUpdate(
+          event.metadata.mongoId,
+          {
+            status: OrderStatus.FAILED_PAYMENT,
+          },
+          { session, new: true }
+        );
+
+        return updatedOrder.toObject();
+      },
+      {
+        exchange: Exchange.OrderPaymentFailed,
+        routingKey: order.type,
+      }
+    );
+
+    console.log(
+      'SUCCESSFULLY UPDATED ORDER STATUS TO FAILED PAYMENT',
       event.metadata.mongoId
     );
 

@@ -21,6 +21,7 @@ export enum OrderStatus {
   SHIPPED = 'shipped',
   DELIVERY_IN_PROGRESS = 'delivery-in-progress',
   DELIVERED = 'delivered',
+  IN_STORE_COMPLETED = 'in-store-completed',
   CANCELLED = 'cancelled',
   FAILED_SHIPPING = 'failed-shipping',
   FAILED_DELIVERY = 'failed-delivery',

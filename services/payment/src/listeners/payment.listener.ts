@@ -109,29 +109,46 @@ export class PaymentListener {
         return new Nack(false);
       }
 
-      const charge = await this.stripe.charges.create(
-        {
-          amount: event.order.total,
-          currency: 'usd',
-          source: 'tok_visa',
-          description: `In-store order payment for order: ${event.order.id}`,
-        },
-        {
-          idempotencyKey: event.order.id,
-        }
-      );
-
-      await this.amqp.publish(
-        Exchange.CHECKOUT_COMPLETED,
-        `usd.${OrderType.IN_STORE}`,
-        {
-          metadata: {
-            mongoId: event.order.id,
+      try {
+        const charge = await this.stripe.charges.create(
+          {
+            amount: event.order.total,
+            currency: 'usd',
+            source: 'tok_visa',
+            description: `In-store order payment for order: ${event.order.id}`,
+            metadata: {
+              mongoId: event.order.id,
+            },
           },
-        }
-      );
+          {
+            idempotencyKey: event.order.id,
+          }
+        );
 
-      console.log('STRIPE PAYMENT CHARGE: ', charge);
+        await this.amqp.publish(
+          Exchange.CHECKOUT_COMPLETED,
+          `usd.${OrderType.IN_STORE}`,
+          {
+            metadata: {
+              mongoId: event.order.id,
+            },
+          }
+        );
+
+        console.log('STRIPE PAYMENT CHARGE: ', charge);
+      } catch (error) {
+        await this.amqp.publish(
+          Exchange.CHECKOUT_FALIED,
+          `usd.${OrderType.IN_STORE}`,
+          {
+            metadata: {
+              mongoId: event.order.id,
+            },
+          }
+        );
+
+        console.log('CHECKOUT FAILED: ', error);
+      }
 
       return new Nack(false);
     } catch (error) {
