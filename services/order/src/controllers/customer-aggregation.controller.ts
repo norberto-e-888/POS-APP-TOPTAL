@@ -1,7 +1,10 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { CustomerAggregationService } from '../services/customer-aggregation.service';
 import { Authenticated, JWTPayload, Roles } from '@pos-app/auth';
+import { CustomerAggregation } from '@pos-app/models';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags(CustomerAggregation.name)
 @Controller()
 export class CustomerAggregationController {
   constructor(

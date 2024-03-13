@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { schemaOptions, BaseModel } from '@pos-app/utils';
 import { ProductStock, ProductStockSchema } from './product.model.sub';
+import { ApiProperty } from '@nestjs/swagger';
 
 export const PRODUCT_MODEL_COLLECTION = 'products';
 
@@ -15,6 +16,7 @@ export enum ProductCategory {
 
 @Schema(schemaOptions<Product>(PRODUCT_MODEL_COLLECTION))
 export class Product extends BaseModel {
+  @ApiProperty({ minLength: 2 })
   @Prop({
     required: true,
     unique: true,
@@ -22,12 +24,14 @@ export class Product extends BaseModel {
   })
   name!: string;
 
+  @ApiProperty({ minLength: 10 })
   @Prop({
     required: true,
     minlength: 10,
   })
   description!: string;
 
+  @ApiProperty({ minimum: 1, description: 'Price in cents.' })
   @Prop({
     required: true,
     min: 1,
@@ -35,6 +39,7 @@ export class Product extends BaseModel {
   })
   price!: number;
 
+  @ApiProperty({ enum: Object.values(ProductCategory) })
   @Prop({
     required: true,
     enum: Object.values(ProductCategory),
@@ -42,6 +47,7 @@ export class Product extends BaseModel {
   })
   category!: ProductCategory;
 
+  @ApiProperty({ type: ProductStock })
   @Prop({
     required: true,
     type: ProductStockSchema,

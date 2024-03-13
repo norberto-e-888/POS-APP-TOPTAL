@@ -22,8 +22,10 @@ import {
 } from '../validators';
 import { Authenticated, JWTPayload, Roles } from '@pos-app/auth';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { User } from '@pos-app/models';
+import { Order, User } from '@pos-app/models';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags(Order.name)
 @Controller()
 export class OrderController {
   constructor(
@@ -39,21 +41,6 @@ export class OrderController {
     @JWTPayload() jwtPayload: JWTPayload
   ) {
     return this.orderService.createOrder(body, jwtPayload.id);
-  }
-
-  @UseGuards(Authenticated)
-  @Roles(['admin'])
-  @Post('admin/order')
-  async handleAdminOrder(@Body() body: CreateAdminOrderBody) {
-    const user = await this.amqpConnection.request<User>({
-      exchange: 'auth.create-or-get-user',
-      routingKey: '',
-      payload: {
-        email: body.customerEmail,
-      },
-    });
-
-    return this.orderService.createOrder(body, user.id, true);
   }
 
   @UseGuards(Authenticated)
@@ -143,6 +130,21 @@ export class OrderController {
     @Param('id') id: string
   ) {
     return this.orderService.fetchOrderById(id, jwtPayload.id);
+  }
+
+  @UseGuards(Authenticated)
+  @Roles(['admin'])
+  @Post('admin/order')
+  async handleAdminOrder(@Body() body: CreateAdminOrderBody) {
+    const user = await this.amqpConnection.request<User>({
+      exchange: 'auth.create-or-get-user',
+      routingKey: '',
+      payload: {
+        email: body.customerEmail,
+      },
+    });
+
+    return this.orderService.createOrder(body, user.id, true);
   }
 
   @UseGuards(Authenticated)

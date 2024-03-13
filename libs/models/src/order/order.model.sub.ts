@@ -7,29 +7,35 @@ import {
   CallbackWithoutResultAndOptionalError,
 } from 'mongoose';
 import { PRODUCT_MODEL_COLLECTION, Product } from './product.model';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({ _id: false })
 export class OrderShippingAddress {
+  @ApiProperty()
   @Prop({
     required: true,
   })
   street!: string;
 
+  @ApiProperty()
   @Prop({
     required: true,
   })
   city!: string;
 
+  @ApiProperty()
   @Prop({
     required: true,
   })
   state!: string;
 
+  @ApiProperty()
   @Prop({
     required: true,
   })
   zip!: string;
 
+  @ApiProperty()
   @Prop({
     required: true,
   })
@@ -41,6 +47,7 @@ export const OrderShippingAddressSchema =
 
 @Schema({ _id: false })
 export class OrderItem {
+  @ApiProperty({ type: String })
   @Prop({
     required: true,
     type: _Schema.Types.ObjectId,
@@ -48,12 +55,14 @@ export class OrderItem {
   })
   productId!: Types.ObjectId;
 
+  @ApiProperty({ minimum: 1 })
   @Prop({
     required: true,
     min: 1,
   })
   quantity!: number;
 
+  @ApiProperty({ minimum: 0.01 })
   @Prop({
     min: 0.01,
   })

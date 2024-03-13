@@ -11,6 +11,7 @@ import {
   OrderShippingAddress,
   OrderShippingAddressSchema,
 } from './order.model.sub';
+import { ApiProperty } from '@nestjs/swagger';
 
 export const ORDER_MODEL_COLLECTION = 'orders';
 
@@ -37,11 +38,13 @@ export enum OrderType {
   schemaOptions<Order>(ORDER_MODEL_COLLECTION, { omitFromTransform: ['hash'] })
 )
 export class Order extends BaseModel {
+  @ApiProperty()
   @Prop({
     required: true,
   })
   customerId!: string;
 
+  @ApiProperty({ type: OrderShippingAddress })
   @Prop({
     required: function (this: Order) {
       return this.status !== OrderStatus.DRAFTING;
@@ -50,6 +53,7 @@ export class Order extends BaseModel {
   })
   shippingAddress?: OrderShippingAddress;
 
+  @ApiProperty({ enum: Object.values(OrderStatus) })
   @Prop({
     required: true,
     enum: Object.values(OrderStatus),
@@ -58,6 +62,7 @@ export class Order extends BaseModel {
   })
   status!: OrderStatus;
 
+  @ApiProperty({ type: [OrderItem] })
   @Prop({
     required: true,
     type: [OrderItemSchema],
@@ -65,11 +70,13 @@ export class Order extends BaseModel {
   })
   items!: OrderItem[];
 
+  @ApiProperty({ minimum: 0.01 })
   @Prop({
     min: 0.01,
   })
   total!: number;
 
+  @ApiProperty({ enum: Object.values(OrderType) })
   @Prop({
     required: true,
     enum: Object.values(OrderType),
