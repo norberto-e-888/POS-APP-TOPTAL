@@ -38,7 +38,7 @@ export class OrderController {
 
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'Not enough stock for a give product/s.',
+    description: 'Not enough stock for a given product/s.',
   })
   @ApiOkResponse({ type: Order })
   @Roles(['customer'])
@@ -197,7 +197,7 @@ export class OrderController {
 
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'Not enough stock for a give product/s.',
+    description: 'Not enough stock for a given product/s.',
   })
   @ApiOkResponse({ type: Order })
   @Roles(['admin'])
