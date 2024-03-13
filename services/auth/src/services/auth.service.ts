@@ -123,7 +123,7 @@ export class AuthService {
     });
 
     if (existingUser && existingUser.stripeId) {
-      return existingUser;
+      return existingUser.toObject();
     }
 
     const user = existingUser

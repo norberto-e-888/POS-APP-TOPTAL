@@ -108,11 +108,35 @@ export class PaymentListener {
         return new Nack(false);
       }
 
+      let {
+        data: [card],
+      } = await this.stripe.paymentMethods.list({
+        customer: result.data[0].id,
+      });
+
+      if (!card) {
+        console.log(
+          'No card found for customer: ',
+          result.data[0].id,
+          'Creating new card...'
+        );
+        card = await this.stripe.paymentMethods.create({
+          type: 'card',
+          card: {
+            number: '4242424242424242',
+            exp_month: 4,
+            exp_year: 2024,
+            cvc: '424',
+          },
+          customer: result.data[0].id,
+        });
+      }
+
       const charge = await this.stripe.charges.create(
         {
           amount: event.order.total,
           currency: 'usd',
-          source: 'tok_visa',
+          source: card.id,
           description: `In-store order payment for order: ${event.order.id}`,
           customer: result.data[0].id,
           metadata: {
