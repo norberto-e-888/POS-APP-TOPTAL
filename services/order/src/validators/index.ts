@@ -139,7 +139,7 @@ export class UpdateItemBody {
 }
 
 export class PlaceOrderBody {
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, default: false })
   @IsBoolean()
   @IsOptional()
   overrideIdempotency?: boolean;
