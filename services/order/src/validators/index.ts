@@ -130,6 +130,7 @@ export class UpdateItemBody {
   @IsString()
   productId: string;
 
+  @ApiProperty()
   @Min(1)
   @IsInt()
   @Transform(toInt)
