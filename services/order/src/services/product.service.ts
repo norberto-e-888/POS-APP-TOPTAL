@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   AddProductStockBody,
   CreateProductBody,
@@ -17,6 +17,17 @@ export class ProductService {
   ) {}
 
   async createProduct(dto: CreateProductBody) {
+    const existingProduct = await this.productModel.findOne({
+      name: dto.name,
+    });
+
+    if (existingProduct) {
+      throw new HttpException(
+        'Product with the same name already exists.',
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
     const product = new this.productModel(dto);
     await product.save();
     return product.toObject();

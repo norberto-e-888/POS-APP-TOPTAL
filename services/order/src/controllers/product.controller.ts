@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -15,7 +16,7 @@ import {
   CreateProductBody,
   ProductsQuery,
 } from '../validators';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Product } from '@pos-app/models';
 
 @UseGuards(Authenticated)
@@ -24,6 +25,10 @@ import { Product } from '@pos-app/models';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Product with the same name already exists.',
+  })
   @ApiOkResponse({ type: Product })
   @Roles(['admin'])
   @Post()

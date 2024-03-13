@@ -21,6 +21,8 @@ export class Product extends BaseModel {
     required: true,
     unique: true,
     minlength: 2,
+    trim: true,
+    lowercase: true,
   })
   name!: string;
 
