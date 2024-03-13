@@ -18,19 +18,18 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { Product } from '@pos-app/models';
 
+@UseGuards(Authenticated)
 @ApiTags(Product.name)
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @UseGuards(Authenticated)
   @Roles(['admin'])
   @Post()
   async handleCreateProduct(@Body() body: CreateProductBody) {
     return this.productService.createProduct(body);
   }
 
-  @UseGuards(Authenticated)
   @Roles(['admin'])
   @Patch(':id/add-stock')
   async handleAddStock(
@@ -40,7 +39,6 @@ export class ProductController {
     return this.productService.addStock(body, id);
   }
 
-  @UseGuards(Authenticated)
   @Roles(['admin', 'customer'])
   @Get()
   async handleQueryProducts(@Query() query: ProductsQuery) {

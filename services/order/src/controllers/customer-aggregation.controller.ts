@@ -4,6 +4,7 @@ import { Authenticated, JWTPayload, Roles } from '@pos-app/auth';
 import { CustomerAggregation } from '@pos-app/models';
 import { ApiTags } from '@nestjs/swagger';
 
+@UseGuards(Authenticated)
 @ApiTags(CustomerAggregation.name)
 @Controller()
 export class CustomerAggregationController {
@@ -11,7 +12,6 @@ export class CustomerAggregationController {
     private readonly customerAggregationService: CustomerAggregationService
   ) {}
 
-  @UseGuards(Authenticated)
   @Roles(['admin'])
   @Get('customer-aggregation/:customerId')
   async handleFetchCustomerAggregationById(
@@ -23,7 +23,6 @@ export class CustomerAggregationController {
     );
   }
 
-  @UseGuards(Authenticated)
   @Roles(['customer'])
   @Get('my-aggregation')
   async handleFetchMyAggregation(@JWTPayload() payload: JWTPayload) {

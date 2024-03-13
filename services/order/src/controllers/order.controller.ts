@@ -25,6 +25,7 @@ import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Order, User } from '@pos-app/models';
 import { ApiTags } from '@nestjs/swagger';
 
+@UseGuards(Authenticated)
 @ApiTags(Order.name)
 @Controller()
 export class OrderController {
@@ -33,7 +34,6 @@ export class OrderController {
     private readonly amqpConnection: AmqpConnection
   ) {}
 
-  @UseGuards(Authenticated)
   @Roles(['customer'])
   @Post('order')
   async handleOrder(
@@ -43,7 +43,6 @@ export class OrderController {
     return this.orderService.createOrder(body, jwtPayload.id);
   }
 
-  @UseGuards(Authenticated)
   @Roles(['admin', 'customer'])
   @Delete('order/:id/cancel')
   async handleCancelOrder(
@@ -53,7 +52,6 @@ export class OrderController {
     return this.orderService.cancelOrder(id, this.getUserId(jwtPayload));
   }
 
-  @UseGuards(Authenticated)
   @Roles(['customer', 'admin'])
   @Patch('order/:id/shipping-address')
   async handleAddShippingAddress(
@@ -68,7 +66,6 @@ export class OrderController {
     );
   }
 
-  @UseGuards(Authenticated)
   @Roles(['customer', 'admin'])
   @Patch('order/:id/add-item')
   async handleAddItem(
@@ -79,7 +76,6 @@ export class OrderController {
     return this.orderService.addItem(body, id, this.getUserId(jwtPayload));
   }
 
-  @UseGuards(Authenticated)
   @Roles(['customer', 'admin'])
   @Patch('order/:id/remove-item')
   async handleRemoveItem(
@@ -90,7 +86,6 @@ export class OrderController {
     return this.orderService.removeItem(body, id, this.getUserId(jwtPayload));
   }
 
-  @UseGuards(Authenticated)
   @Roles(['customer', 'admin'])
   @Patch('order/:id/update-item')
   async handleUpdateItem(
@@ -101,7 +96,6 @@ export class OrderController {
     return this.orderService.updateItem(body, id, this.getUserId(jwtPayload));
   }
 
-  @UseGuards(Authenticated)
   @Roles(['customer', 'admin'])
   @Post('order/:id/place')
   async handlePlaceOrder(
@@ -112,7 +106,6 @@ export class OrderController {
     return this.orderService.placeOrder(body, id, this.getUserId(jwtPayload));
   }
 
-  @UseGuards(Authenticated)
   @Roles(['customer'])
   @Get('order')
   async handleGetOrders(
@@ -122,7 +115,6 @@ export class OrderController {
     return this.orderService.queryOrders(query, jwtPayload.id);
   }
 
-  @UseGuards(Authenticated)
   @Roles(['customer'])
   @Get('order/:id')
   async handleGetOrder(
@@ -132,7 +124,6 @@ export class OrderController {
     return this.orderService.fetchOrderById(id, jwtPayload.id);
   }
 
-  @UseGuards(Authenticated)
   @Roles(['admin'])
   @Post('admin/order')
   async handleAdminOrder(@Body() body: CreateAdminOrderBody) {
@@ -147,14 +138,12 @@ export class OrderController {
     return this.orderService.createOrder(body, user.id, true);
   }
 
-  @UseGuards(Authenticated)
   @Roles(['admin'])
   @Get('admin/order')
   async handleAdminGetOrders(@Query() query: OrdersQuery) {
     return this.orderService.queryOrders(query);
   }
 
-  @UseGuards(Authenticated)
   @Roles(['admin'])
   @Get('admin/order/:id')
   async handleAdminGetOrder(@Param('id') id: string) {
