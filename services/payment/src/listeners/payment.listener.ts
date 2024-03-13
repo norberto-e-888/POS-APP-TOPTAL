@@ -114,6 +114,7 @@ export class PaymentListener {
           currency: 'usd',
           source: 'tok_visa',
           description: `In-store order payment for order: ${event.order.id}`,
+          customer: result.data[0].id,
           metadata: {
             mongoId: event.order.id,
           },
