@@ -1,0 +1,24 @@
+{
+  "name": "services-recommend",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "services/recommend/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "services-recommend:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "services-recommend:build:development"
+        },
+        "production": {
+          "buildTarget": "services-recommend:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}
