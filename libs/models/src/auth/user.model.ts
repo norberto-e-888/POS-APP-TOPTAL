@@ -22,17 +22,13 @@ export enum CustomerStatus {
 export class User extends BaseModel {
   @Prop({
     type: String,
-    required: function (this: User) {
-      return this.customerStatus === CustomerStatus.REGISTERED;
-    },
+    required: isRegistered,
   })
   firstName?: string;
 
   @Prop({
     type: String,
-    required: function (this: User) {
-      return this.customerStatus === CustomerStatus.REGISTERED;
-    },
+    required: isRegistered,
   })
   lastName?: string;
 
@@ -45,9 +41,7 @@ export class User extends BaseModel {
 
   @Prop({
     type: String,
-    required: function (this: User) {
-      return this.customerStatus === CustomerStatus.REGISTERED;
-    },
+    required: isRegistered,
   })
   password?: string;
 
@@ -70,6 +64,10 @@ export class User extends BaseModel {
     default: UserRole.CUSTOMER,
   })
   roles!: UserRole[];
+}
+
+function isRegistered(this: User) {
+  return this.customerStatus === CustomerStatus.REGISTERED;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
