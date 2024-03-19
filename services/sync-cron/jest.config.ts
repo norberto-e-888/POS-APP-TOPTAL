@@ -1,11 +1,11 @@
 /* eslint-disable */
 export default {
-  displayName: 'services-employees',
+  displayName: 'services-sync-cron',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
   transform: {
     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/services/employees',
+  coverageDirectory: '../../coverage/services/sync-cron',
 };

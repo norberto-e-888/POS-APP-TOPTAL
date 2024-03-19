@@ -1,14 +1,14 @@
 {
-  "name": "services-employees-e2e",
+  "name": "services-employee-e2e",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "implicitDependencies": ["services-employees"],
+  "implicitDependencies": ["services-employee"],
   "projectType": "application",
   "targets": {
     "e2e": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
       "options": {
-        "jestConfig": "services/employees-e2e/jest.config.ts",
+        "jestConfig": "services/employee-e2e/jest.config.ts",
         "passWithNoTests": true
       }
     }

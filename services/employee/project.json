@@ -1,21 +1,21 @@
 {
-  "name": "services-employees",
+  "name": "services-employee",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "services/employees/src",
+  "sourceRoot": "services/employee/src",
   "projectType": "application",
   "targets": {
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "services-employees:build"
+        "buildTarget": "services-employee:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "services-employees:build:development"
+          "buildTarget": "services-employee:build:development"
         },
         "production": {
-          "buildTarget": "services-employees:build:production"
+          "buildTarget": "services-employee:build:production"
         }
       }
     }
