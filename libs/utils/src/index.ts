@@ -10,6 +10,9 @@ import { TransformFnParams } from 'class-transformer';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { Schema as _Schema } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
+import { Provider } from '@nestjs/common';
+import { createClient } from 'redis';
 
 @Schema({
   _id: false,
@@ -178,3 +181,27 @@ const toNDecimalFloat =
     parseFloat(value).toFixed(decimals);
 
 export const toTwoDecimalFloat = toNDecimalFloat(2);
+
+export const REDIS = Symbol('REDIS');
+export const RedisProvider: Provider = {
+  provide: REDIS,
+  inject: [ConfigService],
+  useFactory: async (config: ConfigService<RedisRequiredConfig>) => {
+    const { url } = config.get<RedisRequiredConfig['redis']>(
+      'redis'
+    ) as RedisRequiredConfig['redis'];
+
+    const redis = createClient({ url });
+
+    await redis.connect();
+
+    return redis;
+  },
+};
+
+export type Redis = ReturnType<typeof createClient>;
+export interface RedisRequiredConfig {
+  redis: {
+    url: string;
+  };
+}

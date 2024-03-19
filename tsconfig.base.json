@@ -16,6 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@pos-app/auth": ["libs/auth/src/index.ts"],
+      "@pos-app/auth0": ["libs/auth0/src/index.ts"],
+      "@pos-app/cache": ["libs/cache/src/index.ts"],
       "@pos-app/models": ["libs/models/src/index.ts"],
       "@pos-app/outbox": ["libs/outbox/src/index.ts"],
       "@pos-app/utils": ["libs/utils/src/index.ts"],
