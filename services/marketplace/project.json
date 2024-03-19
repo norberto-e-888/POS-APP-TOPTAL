@@ -1,21 +1,21 @@
 {
-  "name": "services-order",
+  "name": "services-marketplace",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "services/order/src",
+  "sourceRoot": "services/marketplace/src",
   "projectType": "application",
   "targets": {
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "services-order:build"
+        "buildTarget": "services-marketplace:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "services-order:build:development"
+          "buildTarget": "services-marketplace:build:development"
         },
         "production": {
-          "buildTarget": "services-order:build:production"
+          "buildTarget": "services-marketplace:build:production"
         }
       }
     }

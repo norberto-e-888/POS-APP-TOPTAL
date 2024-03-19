@@ -1,14 +1,14 @@
 {
-  "name": "services-order-e2e",
+  "name": "services-marketplace-e2e",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "implicitDependencies": ["services-order"],
+  "implicitDependencies": ["services-marketplace"],
   "projectType": "application",
   "targets": {
     "e2e": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
       "options": {
-        "jestConfig": "services/order-e2e/jest.config.ts",
+        "jestConfig": "services/marketplace-e2e/jest.config.ts",
         "passWithNoTests": true
       }
     }

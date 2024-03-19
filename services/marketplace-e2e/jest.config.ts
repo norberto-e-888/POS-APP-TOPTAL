@@ -1,6 +1,6 @@
 /* eslint-disable */
 export default {
-  displayName: 'services-order-e2e',
+  displayName: 'services-marketplace-e2e',
   preset: '../../jest.preset.js',
   globalSetup: '<rootDir>/src/support/global-setup.ts',
   globalTeardown: '<rootDir>/src/support/global-teardown.ts',
