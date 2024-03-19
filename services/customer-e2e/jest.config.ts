@@ -1,6 +1,6 @@
 /* eslint-disable */
 export default {
-  displayName: 'services-auth-e2e',
+  displayName: 'services-customer-e2e',
   preset: '../../jest.preset.js',
   globalSetup: '<rootDir>/src/support/global-setup.ts',
   globalTeardown: '<rootDir>/src/support/global-teardown.ts',

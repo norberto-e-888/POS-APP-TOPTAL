@@ -1,21 +1,21 @@
 {
-  "name": "services-auth",
+  "name": "services-customer",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "services/auth/src",
+  "sourceRoot": "services/customer/src",
   "projectType": "application",
   "targets": {
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "services-auth:build"
+        "buildTarget": "services-customer:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "services-auth:build:development"
+          "buildTarget": "services-customer:build:development"
         },
         "production": {
-          "buildTarget": "services-auth:build:production"
+          "buildTarget": "services-customer:build:production"
         }
       }
     }

@@ -1,14 +1,14 @@
 {
-  "name": "services-auth-e2e",
+  "name": "services-customer-e2e",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "implicitDependencies": ["services-auth"],
+  "implicitDependencies": ["services-customer"],
   "projectType": "application",
   "targets": {
     "e2e": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
       "options": {
-        "jestConfig": "services/auth-e2e/jest.config.ts",
+        "jestConfig": "services/customer-e2e/jest.config.ts",
         "passWithNoTests": true
       }
     }
